@@ -10,7 +10,7 @@ const Members = () => {
   const [members, setMembers] = useState([]);
   const [theme] = useMode();
   const colors = tokens(theme.palette.mode);
-  const url = "https://smalltanphone68.conveyor.cloud/Members";
+  const url = "https://oldgreenleaf71.conveyor.cloud/Members";
 
   async function fetchMembers() {
     const response = await fetch(url);

@@ -10,7 +10,7 @@ const Menu = () => {
   const [Stock, setStock] = useState([]);
   const [theme] = useMode();
   const colors = tokens(theme.palette.mode);
-  const url = "https://smalltanphone68.conveyor.cloud/AllStock";
+  const url = "https://oldgreenleaf71.conveyor.cloud/AllStock";
 
   async function fetchStock() {
     const response = await fetch(url);

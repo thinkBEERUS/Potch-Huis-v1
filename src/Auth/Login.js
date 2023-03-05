@@ -40,7 +40,7 @@ const Login = () => {
     const memNum = values.memberNumber;
     const password = values.password;
     const url =
-      "https://smalltanphone68.conveyor.cloud/Members/Auth?memberNumber=" +
+      "https://oldgreenleaf71.conveyor.cloud/Members/Auth?memberNumber=" +
       memNum +
       "&password=" +
       password;
