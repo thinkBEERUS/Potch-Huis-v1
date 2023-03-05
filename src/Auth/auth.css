@@ -1,0 +1,36 @@
+.inputContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+
+.MuiOutlinedInput-notchedOutline {
+    border-color: #53af5b !important;
+  }
+  
+  .MuiFilledInput-root {
+    border-bottom: 1px solid #53af5b !important;
+  }
+  
+  .MuiInput-root {
+    border-bottom: 1px solid #53af5b !important;
+  }
+
+html,
+body,
+#root,
+.app,
+.content {
+  overflow: hidden;
+}
+
+@media screen and (min-width: 800px) {
+    .inputContainer{
+        width: 60%;
+        margin-left: 20%;
+        margin-right: 20%;
+    }
+  }
