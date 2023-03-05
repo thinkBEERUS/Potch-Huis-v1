@@ -1,9 +1,9 @@
 {
   "name": "potch-huis",
-  "homepage": "https://thinkbeerus.github.io/Potch-Huis",
+  "homepage": "https://thinkbeerus.github.io/potch-huis-v1/",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://thinkbeerus.github.io/Potch-Huis",
+  "proxy": "https://thinkbeerus.github.io/potch-huis-v1/",
   "dependencies": {
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
