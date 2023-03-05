@@ -12,7 +12,7 @@ const Register = () => {
   const [theme, colorMode] = useMode();
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
-  const url = "https://lostaquabike57.conveyor.cloud/Members";
+  const url = "https://smalltanphone68.conveyor.cloud/Members";
 
   async function postMemberData(values) {
     const memberNumber = "hardcoded";
