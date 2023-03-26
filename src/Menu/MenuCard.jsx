@@ -1,49 +1,79 @@
-import React from 'react';
-import images from "../Assets/potch-huis-logo.jpg";
+import React from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
+import VolunteerActivismOutlinedIcon from "@mui/icons-material/VolunteerActivismOutlined";
+import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
+import {
+  Button,
+  CardActionArea,
+  CardActions,
+  Box,
+  Switch,
+} from "@mui/material";
 import { useMode, tokens } from "../theme";
-import { CardActionArea, Button, CardActions } from "@mui/material";
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 
-function StockCard(props) {
-    const [theme] = useMode();
-    const colors = tokens(theme.palette.mode);
+function MenuCard(props) {
+  const [theme] = useMode();
+  const colors = tokens(theme.palette.mode);
   return (
-    <Card sx={{ width: 350, margin: "1%" }}>
+    <Card>
       <CardActionArea>
-        <CardMedia component="img" height="250" src={images} alt="x" />
         <CardContent>
-          <Typography gutterBottom variant="h5" component="div">
-            <strong>{props.name}</strong>
-          </Typography>
-          <Typography variant="h6" color="text.secondary">
-            {props.description}
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            R{props.value}/g (Estimated Value)
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <Typography variant="body2" color="text.primary">
+              {props.name}
+            </Typography>
+            <Typography variant="body2" color="text.primary">
+              {props.description}
+            </Typography>
+            <Typography variant="body2" color="text.primary">
+              {props.quantity} g Available
+            </Typography>
+            <Typography variant="body2" color="text.primary">
+              {props.quantity < 200 ? "Stock is Low" : "Stock is sufficient"}
+            </Typography>
+            <Typography variant="body2" color="text.primary">
+              {props.value} /g
+            </Typography>
+          </Box>
         </CardContent>
       </CardActionArea>
-      <CardActions>
+      <CardActions
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-around",
+        }}
+      >
         <Button
           sx={{
-            backgroundColor: colors.primary[600],
-            color: colors.grey[100],
+            backgroundColor: colors.itemColor,
+            color: colors.typographyColor,
             fontSize: "14px",
             fontWeight: "bold",
             padding: "10px 20px",
             margin: "1%",
           }}
+          tooltip={
+            "The inventory replenishment report displays information such as your closing inventory, items sold, items sold per day, days cover, and average cost. This report can help you get an idea of how fast certain products are moving so you can order stock accordingly."
+          }
+          // onClick={() => {
+          //   props.update();
+          // }}
         >
-          <AddShoppingCartIcon sx={{ mr: "10px" }} />
           Request
+          <VolunteerActivismOutlinedIcon sx={{ ml: "10px" }} />
         </Button>
       </CardActions>
     </Card>
   );
 }
 
-export default StockCard;
+export default MenuCard;

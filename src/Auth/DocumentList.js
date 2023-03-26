@@ -24,10 +24,10 @@ const DocumentList = () => {
 
   const handleSave = () => {
     setChecked(true);
-
     setTimeout(() => {
       setChecked(false);
-    }, 2000);
+    }, 2500);
+    navigate("/Password");
   };
 
   function downloadPdfFiles() {
@@ -67,7 +67,7 @@ const DocumentList = () => {
               <Typography
                 variant="h1"
                 fontWeight="600"
-                color={colors.grey[100]}
+                color={colors.typographyColor}
                 m="5px"
               >
                 Potch Huis
@@ -75,7 +75,7 @@ const DocumentList = () => {
               <Typography
                 variant="h3"
                 fontWeight="600"
-                color={colors.grey[200]}
+                color={colors.typographyColor}
                 m="5px"
               >
                 Good times & Lekker People
@@ -83,7 +83,7 @@ const DocumentList = () => {
               <Typography
                 variant="h3"
                 fontWeight="600"
-                color={colors.grey[200]}
+                color={colors.typographyColor}
                 m="5px"
               >
                 Please download and complete the following documents:
@@ -99,8 +99,8 @@ const DocumentList = () => {
             <Button
               sx={{
                 gridColumn: "span 4",
-                backgroundColor: colors.primary[600],
-                color: colors.grey[100],
+                backgroundColor: colors.itemColor,
+                color: colors.typographyColor,
                 fontSize: "14px",
                 fontWeight: "bold",
                 padding: "10px 20px",
@@ -119,8 +119,8 @@ const DocumentList = () => {
             <Button
               sx={{
                 gridColumn: "span 4",
-                backgroundColor: colors.primary[600],
-                color: colors.grey[100],
+                backgroundColor: colors.itemColor,
+                color: colors.typographyColor,
                 fontSize: "14px",
                 fontWeight: "bold",
                 padding: "10px 20px",

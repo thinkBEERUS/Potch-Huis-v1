@@ -21,7 +21,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
     <MenuItem
       active={selected === title}
       style={{
-        color: colors.grey[100],
+        color: colors.itemColor,
       }}
       onClick={() => setSelected(title)}
       icon={icon}
@@ -53,7 +53,7 @@ function Sidebar({ show }) {
         id="sidebar"
         sx={{
           "& .pro-sidebar-inner": {
-            background: `${colors.primary[400]} !important`,
+            background: `${colors.backgroundColor} !important`,
           },
           "& .pro-icon-wrapper": {
             backgroundColor: "transparent !important",
@@ -62,14 +62,19 @@ function Sidebar({ show }) {
             padding: "5px 35px 5px 20px !important",
           },
           "& .pro-inner-item:hover": {
-            color: "#868dfb !important",
+            color: `${colors.typographyColor} !important`,
           },
           "& .pro-menu-item.active": {
-            color: "#6870fa !important",
+            color: `${colors.typographyColor} !important`,
           },
         }}
       >
-        <ProSidebar collapsed={isCollapsed}>
+        <ProSidebar
+          collapsed={isCollapsed}
+          // style={{
+          //   height: "auto",
+          // }}
+        >
           <Menu iconShape="square">
             {/* LOGO AND MENU ICON */}
             <MenuItem
@@ -77,7 +82,7 @@ function Sidebar({ show }) {
               icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
               style={{
                 margin: "10px 0 20px 0",
-                color: colors.grey[100],
+                color: colors.typographyColor,
               }}
             >
               {!isCollapsed && (
@@ -87,7 +92,7 @@ function Sidebar({ show }) {
                   alignItems="center"
                   ml="15px"
                 >
-                  <Typography variant="h3" color={colors.grey[300]}>
+                  <Typography variant="h3" color={colors.typographyColor}>
                     Potch Huis
                   </Typography>
                   <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
@@ -118,12 +123,12 @@ function Sidebar({ show }) {
                 <Box textAlign="center">
                   <Typography
                     variant="h2"
-                    color={colors.grey[300]}
+                    color={colors.typographyColor}
                     sx={{ m: "10px 0 0 0" }}
                   >
                     {memberName}
                   </Typography>
-                  <Typography variant="h5" color={colors.greenAccent[300]}>
+                  <Typography variant="h5" color={colors.typographyColor}>
                     {memberNumber}
                   </Typography>
                 </Box>
@@ -138,13 +143,6 @@ function Sidebar({ show }) {
                 selected={selected}
                 setSelected={setSelected}
               />
-              {/* <Typography
-                variant="h6"
-                color={colors.grey[300]}
-                sx={{ m: "15px 0 5px 20px" }}
-              >
-                Dashboard
-              </Typography> */}
               <Item
                 title="Stock"
                 to="/Stock"
@@ -173,16 +171,16 @@ function Sidebar({ show }) {
                 selected={selected}
                 setSelected={setSelected}
               />
-              {/* <Typography
-                variant="h6"
-                color={colors.grey[300]}
-                sx={{ m: "15px 0 5px 20px" }}
-              >
-                Pages
-              </Typography> */}
               <Item
-                title="Requests"
-                to="/Requests"
+                title="Confirmed Donations"
+                to="/Confirmed"
+                icon={<MonetizationOnOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+              <Item
+                title="Member Donations"
+                to="/MemberDonations"
                 icon={<RequestPageOutlinedIcon />}
                 selected={selected}
                 setSelected={setSelected}

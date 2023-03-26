@@ -12,10 +12,13 @@ const Register = () => {
   const [theme, colorMode] = useMode();
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
-  const url = "https://oldgreenleaf71.conveyor.cloud/Members";
+  const url = "https://rightgreenwave11.conveyor.cloud/Members";
+  // const url = "https://localhost:7287/Members";
 
   async function postMemberData(values) {
-    const memberNumber = "hardcoded";
+    const memNumUrl = url + "/MemberNumber";
+    const response = await fetch(memNumUrl).then((response) => response.json());
+    const memberNumber = `PH${response}`;
     try {
       const response = await fetch(url, {
         method: "POST",
@@ -34,8 +37,6 @@ const Register = () => {
           memberNumber: memberNumber,
         }),
       });
-      const data = await response;
-      console.log(data);
       navigate("/DocumentList");
     } catch (error) {
       console.error(error);
@@ -57,7 +58,7 @@ const Register = () => {
             <Typography
               variant="h1"
               fontWeight="600"
-              color={colors.grey[100]}
+              color={colors.typographyColor}
               m="5px"
             >
               Potch Huis
@@ -65,7 +66,7 @@ const Register = () => {
             <Typography
               variant="h3"
               fontWeight="600"
-              color={colors.grey[200]}
+              color={colors.typographyColor}
               m="5px"
             >
               Good times & Lekker People
@@ -195,8 +196,8 @@ const Register = () => {
                 >
                   <Button
                     sx={{
-                      backgroundColor: colors.blueAccent[700],
-                      color: colors.grey[100],
+                      backgroundColor: colors.itemColor,
+                      color: colors.typographyColor,
                       fontSize: "14px",
                       fontWeight: "bold",
                       padding: "10px 20px",

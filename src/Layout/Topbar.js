@@ -25,7 +25,7 @@ function Topbar({ show }) {
         {/* SEARCH BAR */}
         <Box
           display="flex"
-          backgroundColor={colors.primary[400]}
+          backgroundColor={colors.backgroundColor}
           borderRadius="3px"
         >
           <InputBase sx={{ ml: 2, flex: 1 }} placeholder="Search" />

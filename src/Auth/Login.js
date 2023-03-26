@@ -23,6 +23,8 @@ const Login = () => {
   const [theme, colorMode] = useMode();
   const colors = tokens(theme.palette.mode);
   const isNonMobile = useMediaQuery("(min-width:600px)");
+  const fetchURL = "https://rightgreenwave11.conveyor.cloud/Members";
+  // const fetchURL = "https://localhost:7287/Members";
 
   const handleRegister = () => {
     navigate("/Register");
@@ -33,17 +35,14 @@ const Login = () => {
 
     setTimeout(() => {
       setChecked(false);
-    }, 1500);
+    }, 2000);
   };
 
   const handleFormSubmit = (values) => {
     const memNum = values.memberNumber;
     const password = values.password;
     const url =
-      "https://oldgreenleaf71.conveyor.cloud/Members/Auth?memberNumber=" +
-      memNum +
-      "&password=" +
-      password;
+      fetchURL + "/Auth?memberNumber=" + memNum + "&password=" + password;
     fetch(url, {
       method: "POST",
       headers: {
@@ -74,7 +73,7 @@ const Login = () => {
             <Typography
               variant="h1"
               fontWeight="600"
-              color={colors.grey[100]}
+              color={colors.typographyColor}
               m="5px"
             >
               Potch Huis
@@ -82,7 +81,7 @@ const Login = () => {
             <Typography
               variant="h3"
               fontWeight="600"
-              color={colors.grey[200]}
+              color={colors.typographyColor}
               m="5px"
             >
               Good times & Lekker People
@@ -151,8 +150,8 @@ const Login = () => {
                     <Button
                       sx={{
                         gridColumn: "span 1",
-                        backgroundColor: colors.blueAccent[700],
-                        color: colors.grey[100],
+                        backgroundColor: colors.itemColor,
+                        color: colors.typographyColor,
                         fontSize: "14px",
                         fontWeight: "bold",
                         padding: "10px 20px",
@@ -164,36 +163,43 @@ const Login = () => {
                       Login
                     </Button>
                   </Box>
-                  <Button
+                  <Box
                     sx={{
                       gridColumn: "span 4",
-                      backgroundColor: colors.primary[600],
-                      color: colors.grey[100],
-                      fontSize: "14px",
-                      fontWeight: "bold",
-                      padding: "10px 20px",
                       margin: "1%",
+                      display: "flex",
+                      justifyContent: "space-around",
                     }}
-                    onClick={handleRegister}
                   >
-                    <AppRegistrationIcon sx={{ mr: "10px" }} />
-                    Register
-                  </Button>
-                  <Button
-                    sx={{
-                      gridColumn: "span 4",
-                      backgroundColor: colors.primary[600],
-                      color: colors.grey[100],
-                      fontSize: "14px",
-                      fontWeight: "bold",
-                      padding: "10px 20px",
-                      margin: "1%",
-                    }}
-                    onClick={handleForgotPassword}
-                  >
-                    <LockResetIcon sx={{ mr: "10px" }} />
-                    Forgot Password
-                  </Button>
+                    <Button
+                      sx={{
+                        gridColumn: "span 1",
+                        backgroundColor: colors.backgroundColor,
+                        color: colors.typographyColor,
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                        padding: "10px 20px",
+                      }}
+                      onClick={handleRegister}
+                    >
+                      <AppRegistrationIcon sx={{ mr: "10px" }} />
+                      Register
+                    </Button>
+                    <Button
+                      sx={{
+                        gridColumn: "span 1",
+                        backgroundColor: colors.backgroundColor,
+                        color: colors.typographyColor,
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                        padding: "10px 20px",
+                      }}
+                      onClick={handleForgotPassword}
+                    >
+                      <LockResetIcon sx={{ mr: "10px" }} />
+                      Forgot Password
+                    </Button>
+                  </Box>
                   <Box
                     sx={{ gridColumn: "span 2" }}
                     style={{

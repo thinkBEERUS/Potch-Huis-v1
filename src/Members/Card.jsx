@@ -1,51 +1,85 @@
-import React from 'react';
-import images from "../Assets/potch-huis-logo.jpg";
+import React from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
-import NoAccountsIcon from "@mui/icons-material/NoAccounts";
-import {  Button, CardActionArea, CardActions } from "@mui/material";
+import VolunteerActivismOutlinedIcon from "@mui/icons-material/VolunteerActivismOutlined";
+import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
+import { Button, CardActionArea, CardActions, Box } from "@mui/material";
 import { useMode, tokens } from "../theme";
+import { Link, useNavigate } from "react-router-dom";
 
 function MemberCard(props) {
-    const [theme] = useMode();
-    const colors = tokens(theme.palette.mode);
+  const [theme] = useMode();
+  const colors = tokens(theme.palette.mode);
+  const navigate = useNavigate();
+
   return (
-    <Card sx={{ width: 350, margin: "1%" }}>
-      <CardActionArea>
-        <CardMedia component="img" height="250" src={images} alt="x" />
+    <Card>
+      <CardActionArea onClick={() => props.update()}>
         <CardContent>
-          <Typography gutterBottom variant="h5" component="div">
-            {props.membernumber}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {props.firstname} {props.lastname}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {props.email}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {props.cell}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {props.address} {props.suburb} {props.city}
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            <Typography gutterBottom variant="h5" component="div">
+              {props.membernumber}
+            </Typography>
+            <Typography variant="body2" color="text.primary">
+              {props.firstname} {props.lastname}
+            </Typography>
+            <Typography variant="body2" color="text.primary">
+              {props.email}
+            </Typography>
+            <Typography variant="body2" color="text.primary">
+              {props.cell}
+            </Typography>
+            <Typography variant="body2" color="text.primary">
+              {props.address} {props.suburb} {props.city}
+            </Typography>
+          </Box>
         </CardContent>
       </CardActionArea>
-      <CardActions>
+      <CardActions
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-around",
+        }}
+      >
         <Button
           sx={{
-            backgroundColor: colors.primary[600],
-            color: colors.grey[100],
+            backgroundColor: colors.itemColor,
+            color: colors.typographyColor,
             fontSize: "14px",
             fontWeight: "bold",
             padding: "10px 20px",
             margin: "1%",
           }}
+          onClick={() => {
+            navigate("/Donations");
+          }}
         >
-          <NoAccountsIcon sx={{ mr: "10px" }} />
-          Disable Member
+          Donations
+          <VolunteerActivismOutlinedIcon sx={{ ml: "10px" }} />
+        </Button>
+        <Button
+          sx={{
+            backgroundColor: colors.itemColor,
+            color: colors.typographyColor,
+            fontSize: "14px",
+            fontWeight: "bold",
+            padding: "10px 20px",
+            margin: "1%",
+          }}
+          onClick={() => {
+            props.update();
+          }}
+        >
+          Update
+          <ManageAccountsOutlinedIcon sx={{ ml: "10px" }} />
         </Button>
       </CardActions>
     </Card>
