@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { Link } from "react-router-dom";
@@ -13,6 +13,7 @@ import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
 import InventoryOutlinedIcon from "@mui/icons-material/InventoryOutlined";
+import { AppState } from "../AppState";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -32,21 +33,13 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
   );
 };
 
-const memberName = document.cookie
-  .split("; ")
-  .find((row) => row.startsWith("username="))
-  ?.split("=")[1];
-
-const memberNumber = document.cookie
-  .split("; ")
-  .find((row) => row.startsWith("membernumber="))
-  ?.split("=")[1];
-
 function Sidebar({ show }) {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
+  const { appState } = useContext(AppState);
+
   if (show) {
     return (
       <Box
@@ -93,7 +86,7 @@ function Sidebar({ show }) {
                   ml="15px"
                 >
                   <Typography variant="h3" color={colors.typographyColor}>
-                    Potch Huis
+                    {appState.memberNumber}
                   </Typography>
                   <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                     <MenuOutlinedIcon />
@@ -101,39 +94,6 @@ function Sidebar({ show }) {
                 </Box>
               )}
             </MenuItem>
-
-            {!isCollapsed && (
-              <Box mb="25px">
-                <Box display="flex" justifyContent="center" alignItems="center">
-                  <PersonOutlinedIcon
-                    style={{
-                      width: "100px",
-                      height: "100px",
-                      borderRadius: "50px",
-                    }}
-                  />
-                  {/* <img
-                    alt="profile-user"
-                    width="100px"
-                    height="100px"
-                    src={`../../assets/user.png`}
-                    style={{ cursor: "pointer", borderRadius: "50%" }}
-                  /> */}
-                </Box>
-                <Box textAlign="center">
-                  <Typography
-                    variant="h2"
-                    color={colors.typographyColor}
-                    sx={{ m: "10px 0 0 0" }}
-                  >
-                    {memberName}
-                  </Typography>
-                  <Typography variant="h5" color={colors.typographyColor}>
-                    {memberNumber}
-                  </Typography>
-                </Box>
-              </Box>
-            )}
 
             <Box paddingLeft={isCollapsed ? undefined : "10%"}>
               <Item
@@ -175,6 +135,13 @@ function Sidebar({ show }) {
                 title="Confirmed Donations"
                 to="/Confirmed"
                 icon={<MonetizationOnOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+              <Item
+                title="Requests"
+                to="/Requests"
+                icon={<RequestPageOutlinedIcon />}
                 selected={selected}
                 setSelected={setSelected}
               />

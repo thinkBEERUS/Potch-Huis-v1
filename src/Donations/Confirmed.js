@@ -9,6 +9,8 @@ import { useMode, tokens } from "../theme";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import * as yup from "yup";
 import Header from "../ed-roh/components/Header";
+import ConfirmedDonationTable from "./ConfirmedDonationTable";
+import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 
 const Confirmed = () => {
   const [confirmed, setConfirmed] = useState([]);
@@ -51,7 +53,7 @@ const Confirmed = () => {
   });
   useEffect(() => {
     axios
-      .get("https://rightgreenwave11.conveyor.cloud/Donations/Confirmed")
+      .get(process.env.REACT_APP_API_URL + "/Donations/Confirmed")
       .then((res) => {
         setConfirmed(res.data);
       });
@@ -69,7 +71,7 @@ const Confirmed = () => {
     setIsAddingConfirmed(true);
     axios
       .post(
-        "https://rightgreenwave11.conveyor.cloud/Donations/Confirmed",
+        process.env.REACT_APP_API_URL + "/Donations/Confirmed",
         newConfirmed
       )
       .then((res) => {
@@ -89,7 +91,7 @@ const Confirmed = () => {
     const updatedConfirmed = confirmed.find((d) => d.id === id);
     axios
       .put(
-        `https://rightgreenwave11.conveyor.cloud/Donations/Confirmed/${id}`,
+        `${process.env.REACT_APP_API_URL}/Donations/Confirmed/${id}`,
         updatedConfirmed
       )
       .then((res) => {
@@ -103,7 +105,7 @@ const Confirmed = () => {
   const handleDeleteConfirmed = (id) => {
     axios
       .delete(
-        `https://rightgreenwave11.conveyor.cloud/Donations/Confirmed?memberNumber=${id}`
+        `${process.env.REACT_APP_API_URL}/Donations/Confirmed?memberNumber=${id}`
       )
       .then(() => {
         const updatedConfirmed = confirmed.filter((d) => d.id !== id);
@@ -117,200 +119,175 @@ const Confirmed = () => {
         style={{
           margin: "1%",
           display: "flex",
-          flexDirection: "column",
+          flexDirection: "row",
+          justifyContent: "space-between",
         }}
       >
-        <Header
-          title="Confirmed Donations"
-          subtitle="Easily view your confirmed donations"
-        />
-        <Table>
-          <thead>
-            <tr>
-              <td>Received</td>
-              <td>Confirmed</td>
-              <td>Confirmed By</td>
-              <td>Member Number</td>
-              <td>Donation Number</td>
-            </tr>
-          </thead>
-          <tbody
-            style={{
-              backgroundColor: colors.backgroundColor,
-              color: colors.typographyColor,
-            }}
-          >
-            {confirmed.map((confirmed) => (
-              <tr key={confirmed.received} onClick={handleNewConfirmed}>
-                <td>{confirmed.received}</td>
-                <td>{confirmed.confirmed}</td>
-                <td>{confirmed.confirmedBy}</td>
-                <td>{confirmed.memberNumber}</td>
-                <td>{confirmed.donationNumber}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+        <Box sx={{ flexGrow: 1, margin: "0.1vw" }}>
+          <Header
+            title="Confirmed Donations"
+            subtitle="Easily view donations confirmed by Potch Huis"
+          />
+        </Box>
 
         <Button
           sx={{
             backgroundColor: colors.itemColor,
             color: colors.typographyColor,
-            fontSize: "14px",
-            fontWeight: "bold",
-            padding: "10px 20px",
-            margin: "30px",
+            //flexGrow: 1,
+            //margin: "0.1vw",
           }}
           onClick={handleNewConfirmed}
         >
-          Confirmed Donation
+          <AddCircleOutlineOutlinedIcon />
         </Button>
-        <Modal
-          open={openModal}
-          onClose={handleCloseModal}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={styleModal}>
-            <Typography id="modal-modal-title" variant="h6" component="h2">
-              Confirmed are very much appreciated
-            </Typography>
-            <Formik
-              onSubmit={handleAddConfirmed}
-              initialValues={newConfirmed}
-              validationSchema={checkoutSchema}
-            >
-              {({ errors, touched, handleBlur }) => (
-                <form onSubmit={handleAddConfirmed}>
-                  <Box
-                    display="grid"
-                    gap="30px"
-                    gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-                    sx={{
-                      "& > div": {
-                        gridColumn: isNonMobile ? undefined : "span 4",
-                      },
-                    }}
-                  >
-                    <TextField
-                      fullWidth
-                      variant="filled"
-                      type="text"
-                      label="Type"
-                      onBlur={handleBlur}
-                      onChange={handleInputChange}
-                      value={newConfirmed.type}
-                      name="type"
-                      error={!!touched.type && !!errors.type}
-                      helperText={touched.type && errors.type}
-                      sx={{ gridColumn: "span 2" }}
-                    />
-                    <TextField
-                      fullWidth
-                      variant="filled"
-                      type="text"
-                      label="Amount"
-                      onBlur={handleBlur}
-                      onChange={handleInputChange}
-                      value={newConfirmed.amount}
-                      name="amount"
-                      error={!!touched.amount && !!errors.amount}
-                      helperText={touched.amount && errors.amount}
-                      sx={{ gridColumn: "span 2" }}
-                    />
-                    <TextField
-                      fullWidth
-                      variant="filled"
-                      type="text"
-                      multiline={true}
-                      rows={3}
-                      label="Description"
-                      onBlur={handleBlur}
-                      onChange={handleInputChange}
-                      value={newConfirmed.description}
-                      name="description"
-                      error={!!touched.description && !!errors.description}
-                      helperText={touched.description && errors.description}
-                      sx={{ gridColumn: "span 4" }}
-                    />
-                    <TextField
-                      fullWidth
-                      variant="filled"
-                      type="text"
-                      multiline={true}
-                      rows={3}
-                      label="Purpose"
-                      onBlur={handleBlur}
-                      onChange={handleInputChange}
-                      value={newConfirmed.purpose}
-                      name="purpose"
-                      error={!!touched.purpose && !!errors.purpose}
-                      helperText={touched.purpose && errors.purpose}
-                      sx={{ gridColumn: "span 4" }}
-                    />
-                    <TextField
-                      fullWidth
-                      variant="filled"
-                      type="text"
-                      label="Member Number"
-                      onBlur={handleBlur}
-                      onChange={handleInputChange}
-                      value={newConfirmed.memberNumber}
-                      name="memberNumber"
-                      error={!!touched.memberNumber && !!errors.memberNumber}
-                      helperText={touched.memberNumber && errors.memberNumber}
-                      sx={{ gridColumn: "span 2" }}
-                    />
-                    <label
-                      value={newConfirmed.confirmedNumber}
-                      name="confirmedNumber"
-                      hidden
-                    ></label>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-around",
-                    }}
-                  >
-                    <Button
-                      sx={{
-                        backgroundColor: colors.itemColor,
-                        color: colors.typographyColor,
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                        padding: "10px 20px",
-                        margin: "30px",
-                      }}
-                      type="submit"
-                    >
-                      {isAddingConfirmed ? "Confirming..." : "Confirm"}
-                      <SaveAsOutlinedIcon sx={{ ml: "10px" }} />
-                    </Button>
-                    <Button
-                      sx={{
-                        backgroundColor: colors.itemColor,
-                        color: colors.typographyColor,
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                        padding: "10px 20px",
-                        margin: "30px",
-                      }}
-                      onClick={() => {
-                        handleCloseModal();
-                        setNewConfirmed(null);
-                      }}
-                    >
-                      Cancel
-                      <DoDisturbAltOutlinedIcon sx={{ ml: "10px" }} />
-                    </Button>
-                  </Box>
-                </form>
-              )}
-            </Formik>
-          </Box>
-        </Modal>
       </Box>
+      <ConfirmedDonationTable />
+      <Modal
+        open={openModal}
+        onClose={handleCloseModal}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={styleModal}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Confirmed are very much appreciated
+          </Typography>
+          <Formik
+            onSubmit={handleAddConfirmed}
+            initialValues={newConfirmed}
+            validationSchema={checkoutSchema}
+          >
+            {({ errors, touched, handleBlur }) => (
+              <form onSubmit={handleAddConfirmed}>
+                <Box
+                  display="grid"
+                  gap="30px"
+                  gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+                  sx={{
+                    "& > div": {
+                      gridColumn: isNonMobile ? undefined : "span 4",
+                    },
+                  }}
+                >
+                  <TextField
+                    fullWidth
+                    variant="filled"
+                    type="text"
+                    label="Type"
+                    onBlur={handleBlur}
+                    onChange={handleInputChange}
+                    value={newConfirmed.type}
+                    name="type"
+                    error={!!touched.type && !!errors.type}
+                    helperText={touched.type && errors.type}
+                    sx={{ gridColumn: "span 2" }}
+                  />
+                  <TextField
+                    fullWidth
+                    variant="filled"
+                    type="text"
+                    label="Amount"
+                    onBlur={handleBlur}
+                    onChange={handleInputChange}
+                    value={newConfirmed.amount}
+                    name="amount"
+                    error={!!touched.amount && !!errors.amount}
+                    helperText={touched.amount && errors.amount}
+                    sx={{ gridColumn: "span 2" }}
+                  />
+                  <TextField
+                    fullWidth
+                    variant="filled"
+                    type="text"
+                    multiline={true}
+                    rows={3}
+                    label="Description"
+                    onBlur={handleBlur}
+                    onChange={handleInputChange}
+                    value={newConfirmed.description}
+                    name="description"
+                    error={!!touched.description && !!errors.description}
+                    helperText={touched.description && errors.description}
+                    sx={{ gridColumn: "span 4" }}
+                  />
+                  <TextField
+                    fullWidth
+                    variant="filled"
+                    type="text"
+                    multiline={true}
+                    rows={3}
+                    label="Purpose"
+                    onBlur={handleBlur}
+                    onChange={handleInputChange}
+                    value={newConfirmed.purpose}
+                    name="purpose"
+                    error={!!touched.purpose && !!errors.purpose}
+                    helperText={touched.purpose && errors.purpose}
+                    sx={{ gridColumn: "span 4" }}
+                  />
+                  <TextField
+                    fullWidth
+                    variant="filled"
+                    type="text"
+                    label="Member Number"
+                    onBlur={handleBlur}
+                    onChange={handleInputChange}
+                    value={newConfirmed.memberNumber}
+                    name="memberNumber"
+                    error={!!touched.memberNumber && !!errors.memberNumber}
+                    helperText={touched.memberNumber && errors.memberNumber}
+                    sx={{ gridColumn: "span 2" }}
+                  />
+                  <label
+                    value={newConfirmed.confirmedNumber}
+                    name="confirmedNumber"
+                    hidden
+                  ></label>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-around",
+                  }}
+                >
+                  <Button
+                    sx={{
+                      backgroundColor: colors.itemColor,
+                      color: colors.typographyColor,
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      padding: "10px 20px",
+                      margin: "30px",
+                    }}
+                    type="submit"
+                  >
+                    {isAddingConfirmed ? "Confirming..." : "Confirm"}
+                    <SaveAsOutlinedIcon sx={{ ml: "10px" }} />
+                  </Button>
+                  <Button
+                    sx={{
+                      backgroundColor: colors.itemColor,
+                      color: colors.typographyColor,
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      padding: "10px 20px",
+                      margin: "30px",
+                    }}
+                    onClick={() => {
+                      handleCloseModal();
+                      setNewConfirmed(null);
+                    }}
+                  >
+                    Cancel
+                    <DoDisturbAltOutlinedIcon sx={{ ml: "10px" }} />
+                  </Button>
+                </Box>
+              </form>
+            )}
+          </Formik>
+        </Box>
+      </Modal>
     </Box>
   );
 };

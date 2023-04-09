@@ -17,9 +17,7 @@ const Password = () => {
   const [test, setTest] = useState("");
 
   async function get() {
-    // const memNumUrl = "https://localhost:7287/Members/MemberNumber";
-    const memNumUrl =
-      "https://rightgreenwave11.conveyor.cloud/Members/MemberNumber";
+    const memNumUrl = process.env.REACT_APP_API_URL + "/Members/MemberNumber";
 
     const response = await fetch(memNumUrl).then((response) => response.json());
     const memberNumber = `PH${response}`;
@@ -28,8 +26,7 @@ const Password = () => {
 
   get();
 
-  const url = "https://rightgreenwave11.conveyor.cloud/Members";
-  //   const url = "https://localhost:7287/Members/Auth";
+  const url = process.env.REACT_APP_API_URL + "/Members";
 
   const initialValues = {
     password: "",
@@ -41,7 +38,7 @@ const Password = () => {
   };
 
   async function postMemberData(values) {
-    const memNumUrl = "https://localhost:7287/Members/MemberNumber";
+    const memNumUrl = process.env.REACT_APP_API_URL + "/Members/MemberNumber";
     const response = await fetch(memNumUrl).then((response) => response.json());
     const memberNumber = `PH${response}`;
     const postValues = `?password=${values.password}&memberNumber=${memberNumber}`;

@@ -12,8 +12,7 @@ const Register = () => {
   const [theme, colorMode] = useMode();
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
-  const url = "https://rightgreenwave11.conveyor.cloud/Members";
-  // const url = "https://localhost:7287/Members";
+  const url = process.env.REACT_APP_API_URL + "/Members";
 
   async function postMemberData(values) {
     const memNumUrl = url + "/MemberNumber";

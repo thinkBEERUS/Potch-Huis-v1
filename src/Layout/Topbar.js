@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Box, IconButton, useTheme } from "@mui/material";
 import { useContext } from "react";
 import { ColorModeContext, tokens } from "../theme";
@@ -5,14 +6,29 @@ import InputBase from "@mui/material/InputBase";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
+import { ShoppingBagOutlined } from "@mui/icons-material";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import SearchIcon from "@mui/icons-material/Search";
+import { useNavigate } from "react-router-dom";
+import RequestedItems from "../Requests/RequestedItems";
 
 function Topbar({ show }) {
+  const navigate = useNavigate();
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [requestNumber, setRequestNumber] = useState("");
+
+  const handleShoppingBagClick = async () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   if (show) {
     return (
       <Box
@@ -43,8 +59,8 @@ function Topbar({ show }) {
               <LightModeOutlinedIcon />
             )}
           </IconButton>
-          <IconButton>
-            <NotificationsOutlinedIcon />
+          <IconButton onClick={handleShoppingBagClick}>
+            <ShoppingBagOutlined />
           </IconButton>
           <IconButton>
             <SettingsOutlinedIcon />
@@ -53,6 +69,7 @@ function Topbar({ show }) {
             <PersonOutlinedIcon />
           </IconButton>
         </Box>
+        <RequestedItems open={isModalOpen} handleClose={handleCloseModal} />
       </Box>
     );
   }

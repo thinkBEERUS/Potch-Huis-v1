@@ -2,7 +2,15 @@ import * as React from "react";
 import axios from "axios";
 import Typography from "@mui/material/Typography";
 import Header from "../ed-roh/components/Header";
-import { Box, Button } from "@mui/material";
+import {
+  Box,
+  Button,
+  Select,
+  InputLabel,
+  MenuItem,
+  TextField,
+  FormControl,
+} from "@mui/material";
 import { useMode, tokens } from "../theme";
 import MenuCard from "./MenuCard";
 import { useState } from "react";
@@ -16,7 +24,7 @@ const Menu = () => {
   const [error, setError] = useState(null);
   const [theme] = useMode();
   const colors = tokens(theme.palette.mode);
-  const url = "https://rightgreenwave11.conveyor.cloud/ActiveStock";
+  const url = process.env.REACT_APP_API_URL + "/ActiveStock";
 
   const fetchStock = async () => {
     setIsLoading(true);
@@ -37,34 +45,35 @@ const Menu = () => {
     return (
       <Box m={"10"}>
         <Box
-          style={{
+          sx={{
             margin: "1%",
             display: "flex",
-            flexDirection: "column",
+            flexDirection: "row",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+            alignContent: "bottom",
+            width: "inherit",
           }}
         >
-          <Header
-            title="Menu"
-            subtitle="View the menu the way your members will see it"
-          />
-          <Button
-            sx={{
-              backgroundColor: colors.itemColor,
-              color: colors.typographyColor,
-              fontSize: "14px",
-              fontWeight: "bold",
-              padding: "10px 20px",
-            }}
-            // onClick={() => {
-            //   handleAddMember();
-            //   setMemberToDelete(null);
-            //   setMemberToUpdate(null);
-            //   handleOpenModal();
-            // }}
-          >
-            {/* <PersonAddOutlinedIcon sx={{ mr: "10px" }} /> */}
-            New Request
-          </Button>
+          <Box sx={{ flexGrow: 1, margin: "0.1vw" }}>
+            <Header
+              title="Menu"
+              subtitle="View the menu the way your members will see it"
+            />
+          </Box>
+
+          <FormControl variant="filled" sx={{ flexGrow: 1, margin: "0.1vw" }}>
+            <InputLabel id="menu-select-label">Inactive Stock</InputLabel>
+            <Select
+              labelId="menu-select-label"
+              id="menu-stock-select"
+              name="stockSelect"
+              onChange={() => console.log("Stock Selected: ")}
+            >
+              <MenuItem value={1}>Stock 1</MenuItem>
+              <MenuItem value={2}>Stock 2</MenuItem>
+            </Select>
+          </FormControl>
         </Box>
         <Box
           sx={{
@@ -76,7 +85,12 @@ const Menu = () => {
           {stock.map((stock) => (
             <Box
               key={stock.name}
-              sx={{ width: 300, height: 200, margin: "1%" }}
+              sx={{
+                display: "flex",
+                flexGrow: 1,
+                margin: "1vw",
+                padding: "1vw",
+              }}
             >
               <MenuCard
                 key={stock.name + stock.value.toString()}

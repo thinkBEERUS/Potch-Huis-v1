@@ -8,8 +8,9 @@ import SaveAsOutlinedIcon from "@mui/icons-material/SaveAsOutlined";
 import { useMode, tokens } from "../theme";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../ed-roh/components/Header";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 import * as yup from "yup";
+import DonationTable from "./DonationTable";
 
 const Donations = () => {
   const [donations, setDonations] = useState([]);
@@ -19,6 +20,7 @@ const Donations = () => {
   const handleCloseModal = () => setOpenModal(false);
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const [newDonation, setNewDonation] = useState(null);
+
   const [theme] = useMode();
   const colors = tokens(theme.palette.mode);
   const handleNewDonation = () => {
@@ -52,11 +54,9 @@ const Donations = () => {
     active: yup.bool().required("This is a required field!"),
   });
   useEffect(() => {
-    axios
-      .get("https://rightgreenwave11.conveyor.cloud/Donations")
-      .then((res) => {
-        setDonations(res.data);
-      });
+    axios.get(process.env.REACT_APP_API_URL + "/Donations").then((res) => {
+      setDonations(res.data);
+    });
   }, []);
 
   const handleInputChange = (event) => {
@@ -70,7 +70,7 @@ const Donations = () => {
   const handleAddDonation = () => {
     setIsAddingDonation(true);
     axios
-      .post("https://rightgreenwave11.conveyor.cloud/Donations", newDonation)
+      .post(process.env.REACT_APP_API_URL + "/Donations", newDonation)
       .then((res) => {
         setDonations([...donations, res.data]);
         setNewDonation({
@@ -85,29 +85,6 @@ const Donations = () => {
       });
   };
 
-  // const handleEditDonation = (id) => {
-  //   const updatedDonation = donations.find((d) => d.id === id);
-  //   axios
-  //     .put(`https://rightgreenwave11.conveyor.cloud/Donations/${id}`, updatedDonation)
-  //     .then((res) => {
-  //       const index = donations.findIndex((d) => d.id === id);
-  //       const updatedDonations = [...donations];
-  //       updatedDonations[index] = res.data;
-  //       setDonations(updatedDonations);
-  //     });
-  // };
-
-  const handleDeleteDonation = (id) => {
-    axios
-      .delete(
-        `https://rightgreenwave11.conveyor.cloud/Donations?memberNumber=${id}`
-      )
-      .then(() => {
-        const updatedDonations = donations.filter((d) => d.id !== id);
-        setDonations(updatedDonations);
-      });
-  };
-
   return (
     <Box m={"10"}>
       <Box
@@ -117,57 +94,31 @@ const Donations = () => {
           flexDirection: "column",
         }}
       >
-        <Header title="Donations" subtitle="Easily view your donations" />
-        <Table className="table striped bordered hover">
-          <thead style={{ alignItems: "flex-start" }}>
-            <tr>
-              <td>Type</td>
-              <td>Amount</td>
-              <td>Description</td>
-              <td>Purpose</td>
-              <td>Member Number</td>
-              <td>Donation Number</td>
-              {/* <td style={{ textAlign: "center" }}>Actions</td> */}
-            </tr>
-          </thead>
-          <tbody
-            style={{
-              backgroundColor: colors.backgroundColor,
-              borderColor: colors.itemColor,
+        <Box
+          style={{
+            margin: "1%",
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <Header
+            title="Donations"
+            subtitle="Easily view donations made to Potch Huis"
+          />
+          <Button
+            sx={{
+              backgroundColor: colors.itemColor,
               color: colors.typographyColor,
             }}
+            onClick={handleNewDonation}
           >
-            {donations.map((donation) => (
-              <tr key={donation.type}>
-                <td>{donation.type}</td>
-                <td>{donation.amount}</td>
-                <td>{donation.description}</td>
-                <td>{donation.purpose}</td>
-                <td>{donation.memberNumber}</td>
-                <td>{donation.donationNumber}</td>
-                {/* <td style={{ textAlign: "center" }}>
-                  <DeleteOutlineIcon
-                    onClick={() => handleDeleteDonation(donation.memberNumber)}
-                  />
-                </td> */}
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+            <AddCircleOutlineOutlinedIcon />
+          </Button>
+        </Box>
 
-        <Button
-          sx={{
-            backgroundColor: colors.itemColor,
-            color: colors.typographyColor,
-            fontSize: "14px",
-            fontWeight: "bold",
-            padding: "10px 20px",
-            margin: "30px",
-          }}
-          onClick={handleNewDonation}
-        >
-          Donation
-        </Button>
+        <DonationTable />
+
         <Modal
           open={openModal}
           onClose={handleCloseModal}

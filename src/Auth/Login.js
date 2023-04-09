@@ -16,15 +16,28 @@ import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import LockResetIcon from "@mui/icons-material/LockReset";
 import LoginIcon from "@mui/icons-material/Login";
+import { useContext } from "react";
+import { AppState } from "../AppState";
 
 const Login = () => {
+  const { appState, setAppState } = useContext(AppState);
   const navigate = useNavigate();
   const [checked, setChecked] = useState(false);
   const [theme, colorMode] = useMode();
   const colors = tokens(theme.palette.mode);
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const fetchURL = "https://rightgreenwave11.conveyor.cloud/Members";
-  // const fetchURL = "https://localhost:7287/Members";
+  const [login, setNewLogin] = useState({
+    memberNumber: "",
+    password: "",
+  });
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setNewLogin((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
 
   const handleRegister = () => {
     navigate("/Register");
@@ -38,22 +51,33 @@ const Login = () => {
     }, 2000);
   };
 
-  const handleFormSubmit = (values) => {
-    const memNum = values.memberNumber;
-    const password = values.password;
-    const url =
-      fetchURL + "/Auth?memberNumber=" + memNum + "&password=" + password;
-    fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => {
-        document.cookie = "username=Austin;";
-        document.cookie = "membernumber=PH00001ADM;";
-        console.log(document.cookie);
-        navigate("/Dashboard");
+  const handleFormSubmit = () => {
+    const memNum = login.memberNumber;
+    const password = login.password;
+    fetch(
+      process.env.REACT_APP_API_URL +
+        "/Members/Auth?memberNumber=" +
+        memNum +
+        "&password=" +
+        password,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.message === "Member Authenticated") {
+          setAppState({
+            ...appState,
+            memberNumber: data.memberNumber,
+          });
+          navigate("/Dashboard");
+        } else {
+          console.log(data.error);
+        }
       })
       .catch((error) => console.error(error));
   };
@@ -89,18 +113,11 @@ const Login = () => {
           </Box>
           <Formik
             onSubmit={handleFormSubmit}
-            initialValues={initialValues}
+            initialValues={login}
             validationSchema={checkoutSchema}
           >
-            {({
-              values,
-              errors,
-              touched,
-              handleBlur,
-              handleChange,
-              handleSubmit,
-            }) => (
-              <form onSubmit={handleSubmit}>
+            {({ errors, touched, handleBlur }) => (
+              <form>
                 <Box
                   display="grid"
                   gap="30px"
@@ -117,8 +134,8 @@ const Login = () => {
                     type="text"
                     label="Member Number"
                     onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={values.memberNumber}
+                    onChange={handleInputChange}
+                    value={login.memberNumber}
                     name="memberNumber"
                     error={!!touched.memberNumber && !!errors.memberNumber}
                     helperText={touched.memberNumber && errors.memberNumber}
@@ -130,8 +147,8 @@ const Login = () => {
                     type="password"
                     label="Password"
                     onBlur={handleBlur}
-                    onChange={handleChange}
-                    value={values.password}
+                    onChange={handleInputChange}
+                    value={login.password}
                     name="password"
                     error={!!touched.password && !!errors.password}
                     helperText={touched.password && errors.password}
@@ -226,9 +243,5 @@ const checkoutSchema = yup.object().shape({
   memberNumber: yup.string().required("required"),
   Password: yup.string().required("required"),
 });
-const initialValues = {
-  memberNumber: "",
-  Password: "",
-};
 
 export default Login;

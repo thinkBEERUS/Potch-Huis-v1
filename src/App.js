@@ -16,11 +16,18 @@ import Sidebar from "./Layout/Sidebar";
 import Donations from "./Donations/Donations";
 import Confirmed from "./Donations/Confirmed";
 import Password from "./Auth/Password";
+import Requests from "./Requests/Requests";
+import RequestedItems from "./Requests/RequestedItems";
+import { AppState } from "./AppState";
 
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
   const location = useLocation();
+  const [appState, setAppState] = useState({
+    memberNumber: "0",
+    requestNumber: "0",
+  });
 
   if (
     location.pathname === "/" ||
@@ -30,48 +37,54 @@ function App() {
     location.pathname === "/DocumentList"
   ) {
     return (
-      <ColorModeContext.Provider value={colorMode}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <div id="app" className="app">
-            <Sidebar isSidebar={isSidebar} show={false} />
-            <main className="content">
-              <Topbar setIsSidebar={setIsSidebar} show={false} />
-              <Routes>
-                <Route index element={<Login />} />
-                <Route path="Register" element={<Register />} />
-                <Route path="DocumentList" element={<DocumentList />} />
-                <Route path="Login" element={<Login />} />
-                <Route path="Password" element={<Password />} />
-              </Routes>
-            </main>
-          </div>
-        </ThemeProvider>
-      </ColorModeContext.Provider>
+      <AppState.Provider value={{ appState, setAppState }}>
+        <ColorModeContext.Provider value={colorMode}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <div id="app" className="app">
+              <Sidebar isSidebar={isSidebar} show={false} />
+              <main className="content">
+                <Topbar setIsSidebar={setIsSidebar} show={false} />
+                <Routes>
+                  <Route index element={<Login />} />
+                  <Route path="Register" element={<Register />} />
+                  <Route path="DocumentList" element={<DocumentList />} />
+                  <Route path="Login" element={<Login />} />
+                  <Route path="Password" element={<Password />} />
+                </Routes>
+              </main>
+            </div>
+          </ThemeProvider>
+        </ColorModeContext.Provider>
+      </AppState.Provider>
     );
   } else {
     return (
-      <ColorModeContext.Provider value={colorMode}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <div id="app" className="app">
-            <Sidebar isSidebar={isSidebar} show={true} />
-            <main className="content">
-              <Topbar setIsSidebar={setIsSidebar} show={true} />
-              <Routes>
-                <Route index element={<Dashboard />} />
-                <Route path="Dashboard" element={<Dashboard />} />
-                <Route path="Members" element={<Members />} />
-                <Route path="Stock" element={<Stock />} />
-                <Route path="Menu" element={<Menu />} />
-                <Route path="Donations" element={<Donations />} />
-                <Route path="Confirmed" element={<Confirmed />} />
-                <Route path="MemberDonations" element={<MemberDonations />} />
-              </Routes>
-            </main>
-          </div>
-        </ThemeProvider>
-      </ColorModeContext.Provider>
+      <AppState.Provider value={{ appState, setAppState }}>
+        <ColorModeContext.Provider value={colorMode}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <div id="app" className="app">
+              <Sidebar isSidebar={isSidebar} show={true} />
+              <main className="content">
+                <Topbar setIsSidebar={setIsSidebar} show={true} />
+                <Routes>
+                  <Route index element={<Dashboard />} />
+                  <Route path="Dashboard" element={<Dashboard />} />
+                  <Route path="Members" element={<Members />} />
+                  <Route path="Stock" element={<Stock />} />
+                  <Route path="Menu" element={<Menu />} />
+                  <Route path="Donations" element={<Donations />} />
+                  <Route path="Confirmed" element={<Confirmed />} />
+                  <Route path="Requests" element={<Requests />} />
+                  <Route path="RequestedItems" element={<RequestedItems />} />
+                  <Route path="MemberDonations" element={<MemberDonations />} />
+                </Routes>
+              </main>
+            </div>
+          </ThemeProvider>
+        </ColorModeContext.Provider>
+      </AppState.Provider>
     );
   }
 }

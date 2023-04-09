@@ -15,10 +15,13 @@ import SaveAsOutlinedIcon from "@mui/icons-material/SaveAsOutlined";
 import { Formik } from "formik";
 import * as yup from "yup";
 import SimpleBackdrop from "../Layout/Backdrop";
+import MemberTable from "./MemberTable";
 
 function Members() {
   const [members, setMembers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
   const [error, setError] = useState(null);
   const [memberToAdd, setMemberToAdd] = useState(null);
   const [memberToUpdate, setMemberToUpdate] = useState(null);
@@ -32,6 +35,38 @@ function Members() {
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
   const isNonMobile = useMediaQuery("(min-width:600px)");
+  const [memberRows, setMemberRows] = useState(0);
+
+  useEffect(() => {
+    async function fetchRows() {
+      const response = await fetch(
+        process.env.REACT_APP_API_URL + "/Members/Rows"
+      );
+      const jsonData = await response.json();
+      setMemberRows(jsonData);
+    }
+    fetchRows();
+  }, []);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      await fetch(
+        `${process.env.REACT_APP_API_URL}/Members?pageNumber=${
+          page + 1
+        }&pageSize=${pageSize}`
+      )
+        .then((response) => response.json())
+        .then((data) => setMembers(data));
+    } catch (error) {
+      setError(error);
+    }
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleAddMemberChange = (event) => {
     setMemberToAdd({
@@ -49,7 +84,7 @@ function Members() {
       streetAddress: "",
       suburb: "",
       city: "",
-      memberNumber: "",
+      memberNumber: "PH00" + memberRows,
     });
   };
 
@@ -69,37 +104,19 @@ function Members() {
   const handleUpdateMemberSubmit = (event) => {
     event.preventDefault();
     updateMember();
+    handleCloseModal();
   };
 
   const handleDeleteMemberSubmit = (event) => {
     event.preventDefault();
     deleteMember();
-    setMemberToUpdate(null);
-    setMemberToDelete(null);
     handleCloseModal();
-  };
-
-  useEffect(() => {
-    fetchMembers();
-  }, []);
-
-  const fetchMembers = async () => {
-    setIsLoading(true);
-    try {
-      const response = await axios.get(
-        "https://rightgreenwave11.conveyor.cloud/Members"
-      );
-      setMembers(response.data);
-    } catch (error) {
-      setError(error);
-    }
-    setIsLoading(false);
   };
 
   const addMember = async () => {
     setIsAddingMember(true);
     await axios
-      .post("https://rightgreenwave11.conveyor.cloud/Members", memberToAdd)
+      .post(process.env.REACT_APP_API_URL + "/Members", memberToAdd)
       .then((response) => {
         setMemberToAdd({
           firstname: null,
@@ -116,6 +133,7 @@ function Members() {
       .catch((error) => setError(error))
       .finally(() => {
         setIsAddingMember(false);
+        fetchData();
       });
   };
 
@@ -123,12 +141,11 @@ function Members() {
     setIsUpdatingMember(true);
     try {
       const response = await axios.put(
-        `https://rightgreenwave11.conveyor.cloud/Members`,
+        process.env.REACT_APP_API_URL + "/Members",
         memberToUpdate
       );
       if (response.status === 200) {
         const updatedMembers = response.data;
-        console.log(updatedMembers);
         setMembers(updatedMembers);
         setMemberToUpdate(null);
       }
@@ -136,6 +153,7 @@ function Members() {
       setError(error);
     } finally {
       setIsUpdatingMember(false);
+      fetchData();
     }
   };
 
@@ -143,7 +161,7 @@ function Members() {
     setIsDeletingMember(true);
     await axios
       .delete(
-        `https://rightgreenwave11.conveyor.cloud/Members?memberNumber=${memberToDelete.memberNumber}`
+        `${process.env.REACT_APP_API_URL}/Members?memberNumber=${memberToDelete.memberNumber}`
       )
       .then((response) => {
         if (response.status === 200) {
@@ -156,7 +174,7 @@ function Members() {
       .catch((error) => setError(error))
       .finally(() => {
         setIsDeletingMember(false);
-        setMemberToDelete(null);
+        fetchData();
       });
   };
 
@@ -311,6 +329,7 @@ function Members() {
                         error={!!touched.memberNumber && !!errors.memberNumber}
                         helperText={touched.memberNumber && errors.memberNumber}
                         sx={{ gridColumn: "span 4" }}
+                        disabled
                       />
 
                       <Box
@@ -468,6 +487,7 @@ function Members() {
                         error={!!touched.memberNumber && !!errors.memberNumber}
                         helperText={touched.memberNumber && errors.memberNumber}
                         sx={{ gridColumn: "span 4" }}
+                        disabled
                       />
                     </Box>
                     <Box
@@ -594,6 +614,18 @@ function Members() {
     );
   };
 
+  const editRow = (row) => {
+    setMemberToUpdate(row);
+
+    handleOpenModal();
+  };
+
+  const deleteRow = (row) => {
+    setMemberToDelete(row);
+
+    handleOpenModal();
+  };
+
   const renderMembers = () => {
     return (
       <Box m={"10"}>
@@ -601,11 +633,11 @@ function Members() {
           style={{
             margin: "1%",
             display: "flex",
-            flexDirection: "column",
+            flexDirection: "row",
+            justifyContent: "space-between",
           }}
         >
           <Header title="Members" subtitle="Easily manage your members" />
-
           <Button
             sx={{
               backgroundColor: colors.itemColor,
@@ -616,13 +648,12 @@ function Members() {
             }}
             onClick={() => {
               handleAddMember();
-              setMemberToDelete(null);
               setMemberToUpdate(null);
+              setMemberToDelete(null);
               handleOpenModal();
             }}
           >
-            <PersonAddOutlinedIcon sx={{ mr: "10px" }} />
-            New Member
+            <PersonAddOutlinedIcon />
           </Button>
         </Box>
         <Box
@@ -632,34 +663,78 @@ function Members() {
             flexWrap: "wrap",
           }}
         >
-          {members.map((member) => (
-            <Box
-              key={member.memberNumber}
-              sx={{ width: 300, height: 200, margin: "1%" }}
-            >
-              <MemberCard
-                key={member.memberNumber}
-                membernumber={member.memberNumber}
-                firstname={member.firstname}
-                lastname={member.lastname}
-                email={member.email}
-                cell={member.cellphone}
-                address={member.streetAddress}
-                suburb={member.suburb}
-                city={member.city}
-                update={() => {
-                  setMemberToUpdate(member);
-                  setMemberToDelete(null);
-                  setMemberToAdd(null);
-                  handleOpenModal();
-                }}
-              />
-            </Box>
-          ))}
+          <MemberTable editMember={editRow} removeMember={deleteRow} />
         </Box>
       </Box>
     );
   };
+
+  // const renderMembers = () => {
+  //   return (
+  //     <Box m={"10"}>
+  //       <Box
+  //         style={{
+  //           margin: "1%",
+  //           display: "flex",
+  //           flexDirection: "column",
+  //         }}
+  //       >
+  //         <Header title="Members" subtitle="Easily manage your members" />
+
+  //         <Button
+  //           sx={{
+  //             backgroundColor: colors.itemColor,
+  //             color: colors.typographyColor,
+  //             fontSize: "14px",
+  //             fontWeight: "bold",
+  //             padding: "10px 20px",
+  //           }}
+  //           onClick={() => {
+  //             handleAddMember();
+  //             setMemberToDelete(null);
+  //             setMemberToUpdate(null);
+  //             handleOpenModal();
+  //           }}
+  //         >
+  //           <PersonAddOutlinedIcon sx={{ mr: "10px" }} />
+  //           New Member
+  //         </Button>
+  //       </Box>
+  //       <Box
+  //         sx={{
+  //           display: "flex",
+  //           flexDirection: "row",
+  //           flexWrap: "wrap",
+  //         }}
+  //       >
+  //         {members.map((member) => (
+  //           <Box
+  //             key={member.memberNumber}
+  //             sx={{ width: 300, height: 200, margin: "1%" }}
+  //           >
+  //             <MemberCard
+  //               key={member.memberNumber}
+  //               membernumber={member.memberNumber}
+  //               firstname={member.firstname}
+  //               lastname={member.lastname}
+  //               email={member.email}
+  //               cell={member.cellphone}
+  //               address={member.streetAddress}
+  //               suburb={member.suburb}
+  //               city={member.city}
+  //               update={() => {
+  //                 setMemberToUpdate(member);
+  //                 setMemberToDelete(null);
+  //                 setMemberToAdd(null);
+  //                 handleOpenModal();
+  //               }}
+  //             />
+  //           </Box>
+  //         ))}
+  //       </Box>
+  //     </Box>
+  //   );
+  // };
 
   return (
     <React.Fragment>

@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Typography from "@mui/material/Typography";
-import { Box, Button, Switch, TextField } from "@mui/material";
+import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
+import {
+  Box,
+  Button,
+  Select,
+  InputLabel,
+  MenuItem,
+  TextField,
+  FormControl,
+} from "@mui/material";
 import { useMode, tokens } from "../theme";
 import StockCard from "./Card";
 import Modal from "@mui/material/Modal";
@@ -15,21 +24,14 @@ import SaveAsOutlinedIcon from "@mui/icons-material/SaveAsOutlined";
 import { Formik } from "formik";
 import * as yup from "yup";
 import SimpleBackdrop from "../Layout/Backdrop";
+import StockTable from "./StockTable";
 
 function Stock() {
   const [stock, setStock] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [stockToAdd, setStockToAdd] = useState(null);
-  const [stockToUpdate, setStockToUpdate] = useState({
-    name: "",
-    description: "",
-    quantity: "",
-    value: "",
-    lastUpdated: "",
-    active: "off",
-    stockNumber: "",
-  });
+  const [stockToUpdate, setStockToUpdate] = useState(null);
   const [stockToDelete, setStockToDelete] = useState(null);
   const [isAddingStock, setIsAddingStock] = useState(false);
   const [isUpdatingStock, setIsUpdatingStock] = useState(false);
@@ -40,10 +42,20 @@ function Stock() {
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  // const putURL = "https://newmintshed67.conveyor.cloud/Stock";
-  // const fetchURL = "https://newmintshed67.conveyor.cloud/AllStock";
-  const putURL = "https://rightgreenwave11.conveyor.cloud/Stock";
-  const fetchURL = "https://rightgreenwave11.conveyor.cloud/AllStock";
+  const putURL = process.env.REACT_APP_API_URL + "/Stock";
+  //const fetchURL = process.env.REACT_APP_API_URL + "/AllStock";
+  const [stockRows, setStockRows] = useState(0);
+
+  useEffect(() => {
+    async function fetchData() {
+      const response = await fetch(
+        process.env.REACT_APP_API_URL + "/Stock/Rows"
+      );
+      const jsonData = await response.json();
+      setStockRows(jsonData);
+    }
+    fetchData();
+  }, []);
 
   const handleAddStockChange = (event) => {
     if (event.target.name === "active") {
@@ -78,7 +90,7 @@ function Stock() {
       value: "",
       lastUpdated: date,
       active: false,
-      stockNumber: "",
+      stockNumber: "#" + stockRows,
     });
   };
 
@@ -109,13 +121,6 @@ function Stock() {
     }
   };
 
-  // const handleUpdateStockActive = (event) => {
-  //   setStockToUpdate({
-  //     ...stockToUpdate,
-  //     [event.target.name]: event.target.checked,
-  //   });
-  // };
-
   const handleAddStockSubmit = (event) => {
     event.preventDefault();
     addStock();
@@ -124,16 +129,13 @@ function Stock() {
 
   const handleUpdateStockSubmit = (event) => {
     event.preventDefault();
-    console.log(stockToUpdate.toString());
 
     updateStock();
+    handleCloseModal();
   };
 
-  const handleDeleteStockSubmit = (event) => {
-    event.preventDefault();
-    deleteStock();
-    setStockToUpdate(null);
-    setStockToDelete(null);
+  const handleDeleteStockSubmit = () => {
+    deleteStock(stockToDelete.stockNumber);
     handleCloseModal();
   };
 
@@ -144,8 +146,11 @@ function Stock() {
   const fetchStock = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(fetchURL);
-      setStock(response.data);
+      await fetch(
+        `${process.env.REACT_APP_API_URL}/AllStock?pageNumber=1&pageSize=15`
+      )
+        .then((response) => response.json())
+        .then((data) => setStock(data));
     } catch (error) {
       setError(error);
     }
@@ -181,6 +186,7 @@ function Stock() {
       .catch((error) => setError(error))
       .finally(() => {
         setIsAddingStock(false);
+        fetchStock();
       });
   };
 
@@ -198,7 +204,6 @@ function Stock() {
       });
       if (response.status === 200) {
         const updatedStock = response.data;
-        console.log(updatedStock);
         setStock(updatedStock);
         setStockToUpdate(null);
       }
@@ -206,17 +211,19 @@ function Stock() {
       setError(error);
     } finally {
       setIsUpdatingStock(false);
+      fetchStock();
     }
   };
 
-  const deleteStock = async () => {
+  const deleteStock = async (stockNum) => {
+    const encodedStockNum = encodeURIComponent(stockNum.replace("#", ""));
     setIsDeletingStock(true);
     await axios
-      .delete(putURL + `?name=${stockToDelete.name}`)
+      .delete(putURL + `?stockNumber=%23${encodedStockNum}`)
       .then((response) => {
         if (response.status === 200) {
           const updatedStock = stock.filter(
-            (stock) => stock.name !== stockToDelete.name
+            (stock) => stock.stockNumber !== stockNum
           );
           setStock(updatedStock);
         }
@@ -225,6 +232,7 @@ function Stock() {
       .finally(() => {
         setIsDeletingStock(false);
         setStockToDelete(null);
+        fetchStock();
       });
   };
 
@@ -312,6 +320,7 @@ function Stock() {
                         error={!!touched.stockNumber && !!errors.stockNumber}
                         helperText={touched.stockNumber && errors.stockNumber}
                         sx={{ gridColumn: "span 4" }}
+                        disabled
                       />
                       <TextField
                         fullWidth
@@ -329,8 +338,8 @@ function Stock() {
                       <TextField
                         fullWidth
                         variant="filled"
-                        type="number"
-                        label="Value Number"
+                        type="text"
+                        label="Value (Club Points)"
                         onBlur={handleBlur}
                         onChange={handleAddStockChange}
                         value={stockToAdd.value}
@@ -339,51 +348,34 @@ function Stock() {
                         helperText={touched.value && errors.value}
                         sx={{ gridColumn: "span 1" }}
                       />
-                      <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        label="Active on Menu"
-                        onBlur={handleBlur}
-                        onChange={handleAddStockChange}
-                        value={stockToAdd.active}
-                        name="active"
-                        error={!!touched.active && !!errors.active}
-                        helperText={touched.active && errors.active}
-                        sx={{ gridColumn: "span 1" }}
-                      />
-                      {/* <Box
-                        sx={{
-                          gridColumn: "span 4",
-                          display: "flex",
-                          flexDirection: "row",
-                          justifyContent: "space-around",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Typography variant="h4" color="text.primary">
-                          Active on Menu
-                        </Typography>
-                        <Switch
-                          checked={stockToAdd.active}
-                          onChange={handleAddStockChange}
-                          name="active"
-                          sx={{
-                            "& .css-16mtyb-MuiButtonBase-root-MuiSwitch-switchBase.Mui-checked":
-                              {
-                                background: `${colors.typographyColor} !important`,
-                              },
-                            "& .css-16mtyb-MuiButtonBase-root-MuiSwitch-switchBase .MuiSwitch-input:checked":
-                              {
-                                color: `${colors.typographyColor} !important`,
-                              },
-                          }}
-                        />
-                      </Box> */}
                       <Box
                         sx={{
                           display: "flex",
-                          justifyContent: "flex-start",
+                          justifyContent: "space-around",
+                          gridColumn: "span 1",
+                        }}
+                      >
+                        <FormControl variant="filled" fullWidth>
+                          <InputLabel id="menu-select-label">
+                            Menu Status
+                          </InputLabel>
+                          <Select
+                            labelId="menu-select-label"
+                            id="menu-simple-select"
+                            value={stockToAdd.active}
+                            name="active"
+                            onChange={handleAddStockChange}
+                          >
+                            <MenuItem value={true}>Active</MenuItem>
+                            <MenuItem value={false}>Inactive</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-evenly",
+                          gridColumn: "span 4",
                         }}
                       >
                         <Button
@@ -393,11 +385,26 @@ function Stock() {
                             fontSize: "14px",
                             fontWeight: "bold",
                             padding: "10px 20px",
+                            margin: "30px",
                           }}
                           type="submit"
                         >
-                          {isAddingStock ? "Saving..." : "Save Stock"}
+                          {isAddingStock ? "Saving..." : "Save"}
                           <AppRegistrationIcon sx={{ ml: "10px" }} />
+                        </Button>
+                        <Button
+                          sx={{
+                            backgroundColor: colors.itemColor,
+                            color: colors.typographyColor,
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                            padding: "10px 20px",
+                            margin: "30px",
+                          }}
+                          onClick={() => setStockToAdd(null)}
+                        >
+                          Cancel
+                          <DoDisturbAltOutlinedIcon sx={{ ml: "10px" }} />
                         </Button>
                       </Box>
                     </Box>
@@ -468,6 +475,7 @@ function Stock() {
                         error={!!touched.stockNumber && !!errors.stockNumber}
                         helperText={touched.stockNumber && errors.stockNumber}
                         sx={{ gridColumn: "span 4" }}
+                        disabled
                       />
                       <TextField
                         fullWidth
@@ -485,8 +493,8 @@ function Stock() {
                       <TextField
                         fullWidth
                         variant="filled"
-                        type="number"
-                        label="Value Number"
+                        type="text"
+                        label="Value (Club Points)"
                         onBlur={handleBlur}
                         onChange={handleUpdateStockChange}
                         value={stockToUpdate.value}
@@ -495,46 +503,29 @@ function Stock() {
                         helperText={touched.value && errors.value}
                         sx={{ gridColumn: "span 1" }}
                       />
-                      <TextField
-                        fullWidth
-                        variant="filled"
-                        type="text"
-                        label="Active on Menu"
-                        onBlur={handleBlur}
-                        onChange={handleUpdateStockChange}
-                        value={stockToUpdate.active}
-                        name="active"
-                        error={!!touched.active && !!errors.active}
-                        helperText={touched.active && errors.active}
-                        sx={{ gridColumn: "span 1" }}
-                      />
-                      {/* <Box
+                      <Box
                         sx={{
-                          gridColumn: "span 4",
                           display: "flex",
-                          flexDirection: "row",
                           justifyContent: "space-around",
-                          alignItems: "center",
+                          gridColumn: "span 1",
                         }}
                       >
-                        <Typography variant="h4" color="text.primary">
-                          Active on Menu
-                        </Typography>
-                        <Switch
-                          //defaultChecked={stockToUpdate.active}
-                          checked={stockToUpdate.active}
-                          // onClick={() =>
-                          //   handleUpdateStockChange({
-                          //     target: {
-                          //       name: "active",
-                          //       checked: !stockToUpdate.active,
-                          //     },
-                          //   })
-                          // }
-                          onChange={handleUpdateStockChange}
-                          name="active"
-                        />
-                      </Box> */}
+                        <FormControl variant="filled" fullWidth>
+                          <InputLabel id="menu-select-label">
+                            Menu Status
+                          </InputLabel>
+                          <Select
+                            labelId="menu-select-label"
+                            id="menu-simple-select"
+                            value={stockToUpdate.active}
+                            name="active"
+                            onChange={handleUpdateStockChange}
+                          >
+                            <MenuItem value={true}>Active</MenuItem>
+                            <MenuItem value={false}>Inactive</MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Box>
                     </Box>
                     <Box
                       sx={{
@@ -553,7 +544,7 @@ function Stock() {
                         }}
                         type="submit"
                       >
-                        {isUpdatingStock ? "Saving..." : "Save Stock"}
+                        {isUpdatingStock ? "Saving..." : "Save"}
                         <SaveAsOutlinedIcon sx={{ ml: "10px" }} />
                       </Button>
                       <Button
@@ -584,7 +575,7 @@ function Stock() {
                           handleOpenModal();
                         }}
                       >
-                        {isDeletingStock ? "Deleting..." : "Delete Stock"}
+                        {isDeletingStock ? "Deleting..." : "Delete"}
                         <DeleteForeverOutlinedIcon sx={{ ml: "10px" }} />
                       </Button>
                     </Box>
@@ -620,8 +611,7 @@ function Stock() {
                   }}
                 >
                   <Button
-                    type="submit"
-                    onClick={handleDeleteStockSubmit}
+                    onClick={() => handleDeleteStockSubmit()}
                     sx={{
                       backgroundColor: colors.itemColor,
                       color: colors.typographyColor,
@@ -660,6 +650,40 @@ function Stock() {
     );
   };
 
+  const editRow = (Id) => {
+    const row = stock.find((r) => r.id === Id);
+    const date = new Date();
+    setStockToUpdate({
+      name: row.name,
+      description: row.description,
+      quantity: row.quantity,
+      value: row.value,
+      lastUpdated: date,
+      active: row.active,
+      stockNumber: row.stockNumber,
+      id: row.id,
+    });
+
+    handleOpenModal();
+  };
+
+  const deleteRow = (Id) => {
+    const row = stock.find((r) => r.id === Id);
+    const date = new Date();
+    setStockToDelete({
+      name: row.name,
+      description: row.description,
+      quantity: row.quantity,
+      value: row.value,
+      lastUpdated: date,
+      active: row.active,
+      stockNumber: row.stockNumber,
+      id: row.id,
+    });
+
+    handleOpenModal();
+  };
+
   const renderStock = () => {
     return (
       <Box m={"10"}>
@@ -667,11 +691,11 @@ function Stock() {
           style={{
             margin: "1%",
             display: "flex",
-            flexDirection: "column",
+            flexDirection: "row",
+            justifyContent: "space-between",
           }}
         >
-          <Header title="Stock" subtitle="Easily manage your stock" />
-
+          <Header title="Stock" subtitle="Easily manage your inventory" />
           <Button
             sx={{
               backgroundColor: colors.itemColor,
@@ -687,8 +711,7 @@ function Stock() {
               handleOpenModal();
             }}
           >
-            <PersonAddOutlinedIcon sx={{ mr: "10px" }} />
-            New Stock
+            <AddCircleOutlineOutlinedIcon />
           </Button>
         </Box>
         <Box
@@ -698,28 +721,7 @@ function Stock() {
             flexWrap: "wrap",
           }}
         >
-          {stock.map((stock, index) => (
-            <Box key={index} sx={{ width: 300, height: 200, margin: "1%" }}>
-              <StockCard
-                key={stock.name}
-                stocknumber={stock.stockNumber}
-                name={stock.name}
-                description={stock.description}
-                quantity={stock.quantity}
-                value={stock.value}
-                lastUpdated={stock.lastUpdated}
-                active={stock.active}
-                activeChange={() => handleUpdateStockChange}
-                update={() => {
-                  setStockToUpdate(stock);
-                  setStockToDelete(null);
-                  setStockToAdd(null);
-                  handleOpenModal();
-                }}
-                stockNumber={stock.stockNumber}
-              />
-            </Box>
-          ))}
+          <StockTable editStock={editRow} removeStock={deleteRow} />
         </Box>
       </Box>
     );
