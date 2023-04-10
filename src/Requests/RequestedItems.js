@@ -41,9 +41,7 @@ const RequestedItems = ({ open, handleClose, requestNumber }) => {
   const fetchCartItems = async () => {
     try {
       const response = await axios.get(
-        process.env.REACT_APP_API_URL +
-          "/Requests/ItemRequest/%23" +
-          appState.requestNumber
+        process.env.REACT_APP_API_URL + "/Requests/ItemRequest/%23R4" //+appState.requestNumber
       );
       console.log(response.data);
       setCartItems(response.data);
