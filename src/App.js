@@ -18,7 +18,9 @@ import Confirmed from "./Donations/Confirmed";
 import Password from "./Auth/Password";
 import Requests from "./Requests/Requests";
 import RequestedItems from "./Requests/RequestedItems";
+import NonDisclosureAgreement from "./Auth/NonDisclosureAgreement";
 import { AppState } from "./AppState";
+import ConfirmedRequests from "./Requests/ConfirmedRequests";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -34,7 +36,8 @@ function App() {
     location.pathname === "/Login" ||
     location.pathname === "/Register" ||
     location.pathname === "/Password" ||
-    location.pathname === "/DocumentList"
+    location.pathname === "/DocumentList" ||
+    location.pathname === "/NonDisclosureAgreement"
   ) {
     return (
       <AppState.Provider value={{ appState, setAppState }}>
@@ -48,6 +51,10 @@ function App() {
                 <Routes>
                   <Route index element={<Login />} />
                   <Route path="Register" element={<Register />} />
+                  <Route
+                    path="NonDisclosureAgreement"
+                    element={<NonDisclosureAgreement />}
+                  />
                   <Route path="DocumentList" element={<DocumentList />} />
                   <Route path="Login" element={<Login />} />
                   <Route path="Password" element={<Password />} />
@@ -79,6 +86,10 @@ function App() {
                   <Route path="Requests" element={<Requests />} />
                   <Route path="RequestedItems" element={<RequestedItems />} />
                   <Route path="MemberDonations" element={<MemberDonations />} />
+                  <Route
+                    path="ConfirmedRequests"
+                    element={<ConfirmedRequests />}
+                  />
                 </Routes>
               </main>
             </div>

@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/potch-huis-v1/static/css/main.f9cdc0f6.css",
-    "main.js": "/potch-huis-v1/static/js/main.99bfd855.js",
+    "main.js": "/potch-huis-v1/static/js/main.abb32351.js",
     "static/media/PH-Membership-Files.zip": "/potch-huis-v1/static/media/PH-Membership-Files.fcedd2a38f673339d987.zip",
     "index.html": "/potch-huis-v1/index.html",
     "main.f9cdc0f6.css.map": "/potch-huis-v1/static/css/main.f9cdc0f6.css.map",
-    "main.99bfd855.js.map": "/potch-huis-v1/static/js/main.99bfd855.js.map"
+    "main.abb32351.js.map": "/potch-huis-v1/static/js/main.abb32351.js.map"
   },
   "entrypoints": [
     "static/css/main.f9cdc0f6.css",
-    "static/js/main.99bfd855.js"
+    "static/js/main.abb32351.js"
   ]
 }
