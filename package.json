@@ -45,7 +45,7 @@
     "react-move": "^6.5.0",
     "react-pro-sidebar": "^0.7.1",
     "react-scripts": "^5.0.1",
-    "react-select": "^5.4.0",
+    "react-select": "^5.7.2",
     "styled-components": "^5.3.6",
     "use-local-storage": "^2.3.6",
     "web-vitals": "^2.1.4",

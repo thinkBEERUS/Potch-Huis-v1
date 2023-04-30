@@ -1,65 +1,129 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import ItemModal from "./ItemModal";
+import { Box, Button } from "@mui/material";
+import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
+import Header from "../ed-roh/components/Header";
+import { useMode, tokens } from "../theme";
+import { useNavigate } from "react-router-dom";
 
 const columns = [
-  { field: "id", headerName: "ID", width: 70 },
-  { field: "name", headerName: "Name", width: 130 },
-  { field: "quantity", headerName: "Quantity", width: 130 },
-  { field: "value", headerName: "Value", width: 130 },
-  { field: "requestNumber", headerName: "Request Number", width: 200 },
-  { field: "stockNumber", headerName: "Stock Number", width: 200 },
-  {
-    field: "requestedItemNumber",
-    headerName: "Requested Item Number",
-    width: 250,
-  },
-  { field: "actualQuantity", headerName: "Actual Quantity", width: 200 },
-];
-
-const rows = [
-  {
-    id: 1,
-    name: "Outdoor",
-    quantity: "5",
-    value: "200",
-    requestNumber: "R1",
-    stockNumber: "#S1",
-    requestedItemNumber: "#RI1",
-    actualQuantity: "5.3",
-  },
-  {
-    id: 2,
-    name: "Indoor",
-    quantity: "3",
-    value: "100",
-    requestNumber: "R2",
-    stockNumber: "#S2",
-    requestedItemNumber: "#RI2",
-    actualQuantity: "2.5",
-  },
+  { field: "id", headerName: "", flex: 0.5 },
+  { field: "requestNumber", headerName: "Request Number", flex: 2 },
+  { field: "memberNumber", headerName: "Member Number", flex: 2 },
+  { field: "value", headerName: "Value", flex: 1 },
+  { field: "received", headerName: "Received", flex: 3 },
+  { field: "confirmed", headerName: "Confirmed", flex: 3 },
 ];
 
 const ConfirmedRequests = () => {
-  // const [selectedRequestNumber, setSelectedRequestNumber] = useState(null);
-  const [item, setItem] = useState(null);
+  const navigate = useNavigate();
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(15);
+  const [rows, setRows] = useState([]);
+  const [totalRows, setTotalRows] = useState(0);
+  const [theme] = useMode();
+  const colors = tokens(theme.palette.mode);
 
-  const handleRowDoubleClick = (params) => {
-    // setSelectedRequestNumber(params.row.requestNumber);
-    setItem(params.row);
+  const handlePageChange = (params) => {
+    setPage(params);
   };
 
+  const handlePageSizeChange = (params) => {
+    setPageSize(params);
+  };
+
+  const fetchRows = async () => {
+    await fetch(`${process.env.REACT_APP_API_URL}/Requests/Rows`)
+      .then((response) => response.json())
+      .then((data) => setTotalRows(data[0]));
+  };
+
+  const fetchData = async () => {
+    await fetch(
+      `${process.env.REACT_APP_API_URL}/Requests/Confirmed?pageNumber=${
+        page + 1
+      }&pageSize=${pageSize}`
+    )
+      .then((response) => response.json())
+      .then((data) => setRows(data));
+  };
+
+  const handleCreateRequest = async () => {
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        requestNumber: "Test request",
+        memberNumber: "123456",
+        value: "100",
+        received: "2023-04-09",
+        confirmed: "2023-04-09",
+        id: 0,
+      }),
+    };
+    await fetch(
+      `${process.env.REACT_APP_API_URL}/Requests/Create`,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then(() => fetchData());
+  };
+
+  useEffect(() => {
+    fetchRows();
+    fetchData();
+  }, [page, pageSize]);
+
   return (
-    <>
-      <div style={{ height: 400, width: "100%" }}>
+    <Box
+      sx={{
+        height: "90vh",
+        width: "100%",
+      }}
+    >
+      <Box
+        sx={{
+          margin: "1%",
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+        }}
+      >
+        <Header
+          title="Requests"
+          subtitle="Easily view requests made to Potch Huis"
+        />
+        <Button
+          sx={{
+            backgroundColor: colors.itemColor,
+            color: colors.typographyColor,
+          }}
+          onClick={() => navigate("/NewRequestForm")}
+        >
+          <AddCircleOutlineOutlinedIcon />
+        </Button>
+      </Box>
+      <Box
+        sx={{
+          margin: "1%",
+          display: "flex",
+          height: "85%",
+        }}
+      >
         <DataGrid
           rows={rows}
           columns={columns}
-          onRowDoubleClick={handleRowDoubleClick}
+          pagination
+          page={page}
+          pageSize={pageSize}
+          rowsPerPageOptions={[15, 25, 50, 100]}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          rowCount={totalRows}
+          paginationMode="server"
         />
-      </div>
-      {item && <ItemModal item={item} />}
-    </>
+      </Box>
+    </Box>
   );
 };
 

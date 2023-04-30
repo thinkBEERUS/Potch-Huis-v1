@@ -29,34 +29,6 @@ const Register = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const postMemberData = async (values) => {
-    const memNumUrl = url + "/MemberNumber";
-    const response = await fetch(memNumUrl).then((response) => response.json());
-    const memberNumber = `PH${response}`;
-    try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          accept: "*/*",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          firstname: values.firstName,
-          lastname: values.lastName,
-          email: values.email,
-          cellphone: values.cell,
-          streetAddress: values.streetAddress,
-          suburb: values.suburb,
-          city: values.city,
-          memberNumber: memberNumber,
-        }),
-      });
-      handleNext();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
@@ -98,35 +70,7 @@ const Register = () => {
           )}
           {activeStep === 2 && (
             <Box mt="30px" sx={{ display: "flex", justifyContent: "center" }}>
-              <Formik
-                initialValues={{
-                  firstName: "",
-                  lastName: "",
-                  email: "",
-                  cell: "",
-                  streetAddress: "",
-                  suburb: "",
-                  city: "",
-                }}
-                validationSchema={yup.object().shape({
-                  firstName: yup.string().required(),
-                  lastName: yup.string().required(),
-                  email: yup.string().email().required(),
-                  cell: yup.string().required(),
-                  streetAddress: yup.string().required(),
-                  suburb: yup.string().required(),
-                  city: yup.string().required(),
-                })}
-                onSubmit={(values, { setSubmitting }) => {
-                  setSubmitting(true);
-                  postMemberData(values);
-                  setSubmitting(false);
-                }}
-              >
-                {(formik) => (
-                  <RegistrationForm formik={formik} handleBack={handleBack} />
-                )}
-              </Formik>
+              <RegistrationForm />
             </Box>
           )}
         </Box>

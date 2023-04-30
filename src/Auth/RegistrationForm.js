@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext, useEffect } from "react";
 import {
   TextField,
   Button,
@@ -9,19 +9,46 @@ import {
   OutlinedInput,
   FormHelperText,
 } from "@mui/material";
+import { AppState } from "../AppState";
+import { useNavigate } from "react-router-dom";
+
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const RegistrationForm = () => {
+  const navigate = useNavigate();
+  const { appState, setAppState } = useContext(AppState);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
+    cell: "",
+    streetAddress: "",
+    suburb: "",
+    city: "",
     password: "",
     confirmPassword: "",
     showPassword: false,
   });
 
+  async function setMemberNumber() {
+    const memNumUrl = process.env.REACT_APP_API_URL + "/Members/MemberNumber";
+    const response = await fetch(memNumUrl).then((response) => response.json());
+    const memberNumber = `PH${response}`;
+    setAppState({
+      ...appState,
+      memberNumber: memberNumber,
+    });
+  }
+
+  useEffect(() => {
+    setMemberNumber();
+  }, []);
+
   const [formErrors, setFormErrors] = useState({});
+
+  const handlelogin = () => {
+    navigate("/Login");
+  };
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -39,9 +66,9 @@ const RegistrationForm = () => {
     event.preventDefault();
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-
+    console.log("clicked");
     const errors = {};
 
     if (!formData.firstName) {
@@ -54,8 +81,22 @@ const RegistrationForm = () => {
 
     if (!formData.email) {
       errors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = "Invalid email address";
+    }
+
+    if (!formData.cell) {
+      errors.cell = "Cellphone number is required";
+    }
+
+    if (!formData.streetAddress) {
+      errors.streetAddress = "Street Address is required";
+    }
+
+    if (!formData.suburb) {
+      errors.suburb = "Suburb is required";
+    }
+
+    if (!formData.city) {
+      errors.city = "City is required";
     }
 
     if (!formData.password) {
@@ -69,10 +110,55 @@ const RegistrationForm = () => {
     } else if (formData.confirmPassword !== formData.password) {
       errors.confirmPassword = "Passwords do not match";
     }
-
     if (Object.keys(errors).length === 0) {
-      // Handle form submission
-      console.log("Form submitted");
+      const memNum = await fetch(
+        process.env.REACT_APP_API_URL + "/Members/MemberNumber"
+      ).then((response) => response.json());
+      const formDataToSend = {
+        firstname: formData.firstName,
+        lastname: formData.lastName,
+        email: formData.email,
+        cellphone: formData.cell,
+        streetAddress: formData.streetAddress,
+        suburb: formData.suburb,
+        city: formData.city,
+        memberNumber: `PH${memNum}`,
+        id: 0,
+      };
+
+      fetch(process.env.REACT_APP_API_URL + "/Members", {
+        method: "POST",
+        headers: {
+          Accept: "*/*",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formDataToSend),
+      })
+        .then((response) => {
+          if (response.ok) {
+            console.log("Member Created!");
+
+            fetch(
+              `${process.env.REACT_APP_API_URL}/Members/Auth?password=${formData.password}&memberNumber=PH${memNum}`,
+              {
+                method: "POST",
+                headers: {
+                  accept: "*/*",
+                  "Content-Type": "application/json",
+                },
+              }
+            )
+              .then((response) => {
+                if (response.ok) {
+                  console.log("Password Created!");
+                  handlelogin();
+                }
+              })
+              .catch((error) => console.error(error));
+          }
+        })
+        .then((data) => console.log(data))
+        .catch((error) => console.error(error));
     } else {
       setFormErrors(errors);
     }
@@ -81,51 +167,76 @@ const RegistrationForm = () => {
   return (
     <form onSubmit={handleSubmit}>
       <TextField
-        id="firstName"
-        name="firstName"
+        fullWidth
         label="First Name"
-        value={formData.firstName}
+        name="firstName"
+        defaultValue={formData.firstName}
         onChange={handleInputChange}
         error={!!formErrors.firstName}
         helperText={formErrors.firstName}
-        sx={{ marginBottom: "16px" }}
-        fullWidth
       />
-
       <TextField
-        id="lastName"
-        name="lastName"
+        fullWidth
         label="Last Name"
-        value={formData.lastName}
+        name="lastName"
+        defaultValue={formData.lastName}
         onChange={handleInputChange}
         error={!!formErrors.lastName}
         helperText={formErrors.lastName}
-        sx={{ marginBottom: "16px" }}
-        fullWidth
       />
-
       <TextField
-        id="email"
-        name="email"
+        fullWidth
         label="Email"
-        type="email"
-        value={formData.email}
+        name="email"
+        defaultValue={formData.email}
         onChange={handleInputChange}
         error={!!formErrors.email}
         helperText={formErrors.email}
-        sx={{ marginBottom: "16px" }}
-        fullWidth
       />
-
-      <FormControl variant="outlined" fullWidth sx={{ marginBottom: "16px" }}>
+      <TextField
+        fullWidth
+        label="Cellphone Number"
+        name="cell"
+        defaultValue={formData.cell}
+        onChange={handleInputChange}
+        error={!!formErrors.cell}
+        helperText={formErrors.cell}
+      />
+      <TextField
+        fullWidth
+        label="Street Address"
+        name="streetAddress"
+        defaultValue={formData.streetAddress}
+        onChange={handleInputChange}
+        error={!!formErrors.streetAddress}
+        helperText={formErrors.streetAddress}
+      />
+      <TextField
+        fullWidth
+        label="Suburb"
+        name="suburb"
+        defaultValue={formData.suburb}
+        onChange={handleInputChange}
+        error={!!formErrors.suburb}
+        helperText={formErrors.suburb}
+      />
+      <TextField
+        fullWidth
+        label="City"
+        name="city"
+        defaultValue={formData.city}
+        onChange={handleInputChange}
+        error={!!formErrors.city}
+        helperText={formErrors.city}
+      />
+      <FormControl fullWidth variant="outlined" error={!!formErrors.password}>
         <InputLabel htmlFor="password">Password</InputLabel>
         <OutlinedInput
           id="password"
           name="password"
           type={formData.showPassword ? "text" : "password"}
-          value={formData.password}
+          defaultValue={formData.password}
           onChange={handleInputChange}
-          error={!!formErrors.password}
           endAdornment={
             <InputAdornment position="end">
               <IconButton
@@ -140,19 +251,20 @@ const RegistrationForm = () => {
           }
           label="Password"
         />
-        {formErrors.password && (
-          <FormHelperText error>{formErrors.password}</FormHelperText>
-        )}
+        <FormHelperText>{formErrors.password}</FormHelperText>
       </FormControl>
-      <FormControl variant="outlined" fullWidth sx={{ marginBottom: "16px" }}>
-        <InputLabel htmlFor="confirm-password">Confirm Password</InputLabel>
+      <FormControl
+        fullWidth
+        variant="outlined"
+        error={!!formErrors.confirmPassword}
+      >
+        <InputLabel htmlFor="confirmPassword">Confirm Password</InputLabel>
         <OutlinedInput
-          id="confirm-password"
+          id="confirmPassword"
           name="confirmPassword"
           type={formData.showPassword ? "text" : "password"}
-          value={formData.confirmPassword}
+          defaultValue={formData.confirmPassword}
           onChange={handleInputChange}
-          error={!!formErrors.confirmPassword}
           endAdornment={
             <InputAdornment position="end">
               <IconButton
@@ -167,16 +279,12 @@ const RegistrationForm = () => {
           }
           label="Confirm Password"
         />
-        {formErrors.confirmPassword && (
-          <FormHelperText error>{formErrors.confirmPassword}</FormHelperText>
-        )}
+        <FormHelperText>{formErrors.confirmPassword}</FormHelperText>
       </FormControl>
-
-      <Button variant="contained" type="submit">
+      <Button variant="contained" color="primary" onClick={handleSubmit}>
         Submit
       </Button>
     </form>
   );
 };
-
 export default RegistrationForm;

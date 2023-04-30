@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Table } from "react-bootstrap";
 import { Button, Box, Typography, Modal, TextField } from "@mui/material";
 import { Formik } from "formik";
 import DoDisturbAltOutlinedIcon from "@mui/icons-material/DoDisturbAltOutlined";
@@ -11,9 +10,13 @@ import Header from "../ed-roh/components/Header";
 import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 import * as yup from "yup";
 import DonationTable from "./DonationTable";
-
+import { AppState } from "../AppState";
+import { useContext } from "react";
 const Donations = () => {
-  const [donations, setDonations] = useState([]);
+  const currentDate = new Date();
+  const formattedDate = currentDate.toLocaleDateString("en-GB");
+  const { appState, setAppState } = useContext(AppState);
+  const [refreshTable, setRefreshTable] = useState(false);
   const [isAddingDonation, setIsAddingDonation] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const handleOpenModal = () => setOpenModal(true);
@@ -30,7 +33,10 @@ const Donations = () => {
       description: "",
       purpose: "",
       memberNumber: "",
-      donationNumber: "",
+      donationNumber: "DTest",
+      confirmed: formattedDate,
+      confirmedBy: appState.memberNumber,
+      received: "",
     });
     handleOpenModal();
   };
@@ -53,11 +59,6 @@ const Donations = () => {
     lastUpdated: yup.date().required("This is a required field!"),
     active: yup.bool().required("This is a required field!"),
   });
-  useEffect(() => {
-    axios.get(process.env.REACT_APP_API_URL + "/Donations").then((res) => {
-      setDonations(res.data);
-    });
-  }, []);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -69,10 +70,15 @@ const Donations = () => {
 
   const handleAddDonation = () => {
     setIsAddingDonation(true);
-    axios
-      .post(process.env.REACT_APP_API_URL + "/Donations", newDonation)
-      .then((res) => {
-        setDonations([...donations, res.data]);
+    fetch(process.env.REACT_APP_API_URL + "/Donations/Create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newDonation),
+    })
+      .then((res) => res.json())
+      .then((data) => {
         setNewDonation({
           type: "",
           amount: "",
@@ -80,8 +86,14 @@ const Donations = () => {
           purpose: "",
           memberNumber: "",
           donationNumber: "",
+          received: "",
         });
+        setIsAddingDonation(false);
         handleCloseModal();
+        setRefreshTable(true);
+      })
+      .catch((error) => {
+        console.error(error);
       });
   };
 
@@ -117,7 +129,7 @@ const Donations = () => {
           </Button>
         </Box>
 
-        <DonationTable />
+        <DonationTable refreshTable={refreshTable} />
 
         <Modal
           open={openModal}
@@ -185,7 +197,7 @@ const Donations = () => {
                       name="description"
                       error={!!touched.description && !!errors.description}
                       helperText={touched.description && errors.description}
-                      sx={{ gridColumn: "span 4" }}
+                      sx={{ gridColumn: "span 2" }}
                     />
                     <TextField
                       fullWidth
@@ -200,7 +212,20 @@ const Donations = () => {
                       name="purpose"
                       error={!!touched.purpose && !!errors.purpose}
                       helperText={touched.purpose && errors.purpose}
-                      sx={{ gridColumn: "span 4" }}
+                      sx={{ gridColumn: "span 2" }}
+                    />
+                    <TextField
+                      fullWidth
+                      variant="filled"
+                      type="text"
+                      label="Date Received"
+                      onBlur={handleBlur}
+                      onChange={handleInputChange}
+                      value={newDonation.received}
+                      name="received"
+                      error={!!touched.received && !!errors.received}
+                      helperText={touched.received && errors.received}
+                      sx={{ gridColumn: "span 2" }}
                     />
                     <TextField
                       fullWidth
@@ -215,11 +240,51 @@ const Donations = () => {
                       helperText={touched.memberNumber && errors.memberNumber}
                       sx={{ gridColumn: "span 2" }}
                     />
-                    <label
+                    <TextField
+                      fullWidth
+                      variant="filled"
+                      type="text"
+                      label="Confirmed By"
+                      onBlur={handleBlur}
+                      onChange={handleInputChange}
+                      value={appState.memberNumber}
+                      name="confirmedBy"
+                      error={!!touched.confirmedby && !!errors.confirmedby}
+                      helperText={touched.confirmedby && errors.confirmedby}
+                      sx={{ gridColumn: "span 2" }}
+                      disabled
+                    />
+                    <TextField
+                      fullWidth
+                      variant="filled"
+                      type="text"
+                      label="Date Confirmed"
+                      onBlur={handleBlur}
+                      onChange={handleInputChange}
+                      value={formattedDate}
+                      name="confirmed"
+                      error={!!touched.confirmed && !!errors.confirmed}
+                      helperText={touched.confirmed && errors.confirmed}
+                      sx={{ gridColumn: "span 2" }}
+                      disabled
+                    />
+                    <TextField
+                      fullWidth
+                      variant="filled"
+                      type="text"
+                      label="Donation Number"
+                      onBlur={handleBlur}
+                      onChange={handleInputChange}
                       value={newDonation.donationNumber}
                       name="donationNumber"
-                      hidden
-                    ></label>
+                      error={
+                        !!touched.donationNumber && !!errors.donationNumber
+                      }
+                      helperText={
+                        touched.donationNumber && errors.donationNumber
+                      }
+                      sx={{ gridColumn: "span 2" }}
+                    />
                   </Box>
                   <Box
                     sx={{
@@ -236,7 +301,7 @@ const Donations = () => {
                         padding: "10px 20px",
                         margin: "30px",
                       }}
-                      type="submit"
+                      onClick={handleAddDonation}
                     >
                       {isAddingDonation ? "Confirming..." : "Confirm"}
                       <SaveAsOutlinedIcon sx={{ ml: "10px" }} />

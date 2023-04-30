@@ -14,13 +14,14 @@ import { useState } from "react";
 import Topbar from "./Layout/Topbar";
 import Sidebar from "./Layout/Sidebar";
 import Donations from "./Donations/Donations";
-import Confirmed from "./Donations/Confirmed";
 import Password from "./Auth/Password";
-import Requests from "./Requests/Requests";
+import ConfirmedRequests from "./Requests/ConfirmedRequests";
 import RequestedItems from "./Requests/RequestedItems";
 import NonDisclosureAgreement from "./Auth/NonDisclosureAgreement";
 import { AppState } from "./AppState";
-import ConfirmedRequests from "./Requests/ConfirmedRequests";
+import UnconfirmedRequests from "./Requests/UnconfirmedRequests";
+import NewRequestForm from "./Requests/NewRequestForm";
+import Unconfirmed from "./Donations/Unconfirmed";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -82,13 +83,18 @@ function App() {
                   <Route path="Stock" element={<Stock />} />
                   <Route path="Menu" element={<Menu />} />
                   <Route path="Donations" element={<Donations />} />
-                  <Route path="Confirmed" element={<Confirmed />} />
-                  <Route path="Requests" element={<Requests />} />
+                  <Route path="Unconfirmed" element={<Unconfirmed />} />
+                  {/* <Route path="Requests" element={<Requests />} /> */}
                   <Route path="RequestedItems" element={<RequestedItems />} />
                   <Route path="MemberDonations" element={<MemberDonations />} />
+                  <Route path="NewRequestForm" element={<NewRequestForm />} />
                   <Route
                     path="ConfirmedRequests"
                     element={<ConfirmedRequests />}
+                  />
+                  <Route
+                    path="UnconfirmedRequests"
+                    element={<UnconfirmedRequests />}
                   />
                 </Routes>
               </main>

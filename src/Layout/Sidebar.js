@@ -125,29 +125,29 @@ function Sidebar({ show }) {
                 setSelected={setSelected}
               />
               <Item
-                title="Donations"
+                title="Confirmed Donations"
                 to="/Donations"
                 icon={<MonetizationOnOutlinedIcon />}
                 selected={selected}
                 setSelected={setSelected}
               />
               <Item
-                title="Confirmed Donations"
-                to="/Confirmed"
+                title="Unconfirmed Donations"
+                to="/Unconfirmed"
                 icon={<MonetizationOnOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-              <Item
-                title="Requests"
-                to="/Requests"
-                icon={<RequestPageOutlinedIcon />}
                 selected={selected}
                 setSelected={setSelected}
               />
               <Item
                 title="Confirmed Requests"
                 to="/ConfirmedRequests"
+                icon={<RequestPageOutlinedIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+              <Item
+                title="Unconfirmed Requests"
+                to="/UnconfirmedRequests"
                 icon={<RequestPageOutlinedIcon />}
                 selected={selected}
                 setSelected={setSelected}
