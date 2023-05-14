@@ -5,6 +5,7 @@ import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOu
 import Header from "../ed-roh/components/Header";
 import { useMode, tokens } from "../theme";
 import { useNavigate } from "react-router-dom";
+import RequestItems from "./RequestItems";
 
 const columns = [
   { field: "id", headerName: "", flex: 0.5 },
@@ -23,6 +24,7 @@ const ConfirmedRequests = () => {
   const [totalRows, setTotalRows] = useState(0);
   const [theme] = useMode();
   const colors = tokens(theme.palette.mode);
+  const [items, setItems] = useState([]);
 
   const handlePageChange = (params) => {
     setPage(params);
@@ -48,26 +50,29 @@ const ConfirmedRequests = () => {
       .then((data) => setRows(data));
   };
 
-  const handleCreateRequest = async () => {
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        requestNumber: "Test request",
-        memberNumber: "123456",
-        value: "100",
-        received: "2023-04-09",
-        confirmed: "2023-04-09",
-        id: 0,
-      }),
-    };
-    await fetch(
-      `${process.env.REACT_APP_API_URL}/Requests/Create`,
-      requestOptions
+  function handleShowItems(params) {
+    fetch(
+      `https://localhost:7287/Requests/ItemRequest/${params.row.requestNumber}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "*/*",
+        },
+      }
     )
-      .then((response) => response.json())
-      .then(() => fetchData());
-  };
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setItems(data);
+      })
+      .catch((error) => {
+        console.error("There was an error!", error);
+      });
+  }
 
   useEffect(() => {
     fetchRows();
@@ -121,8 +126,11 @@ const ConfirmedRequests = () => {
           onPageSizeChange={handlePageSizeChange}
           rowCount={totalRows}
           paginationMode="server"
+          onRowDoubleClick={handleShowItems}
         />
       </Box>
+
+      {items.length > 0 && <RequestItems items={items} />}
     </Box>
   );
 };

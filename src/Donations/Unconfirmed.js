@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Button, Box, Typography, Modal, TextField } from "@mui/material";
+import {
+  Button,
+  Box,
+  Typography,
+  Modal,
+  TextField,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import { Formik } from "formik";
 import DoDisturbAltOutlinedIcon from "@mui/icons-material/DoDisturbAltOutlined";
 import SaveAsOutlinedIcon from "@mui/icons-material/SaveAsOutlined";
@@ -10,33 +20,33 @@ import Header from "../ed-roh/components/Header";
 import AddCircleOutlineOutlinedIcon from "@mui/icons-material/AddCircleOutlineOutlined";
 import * as yup from "yup";
 import UnconfirmedTable from "./UnconfirmedTable";
-
+import { AppState } from "../AppState";
+import { useContext } from "react";
 const Unconfirmed = () => {
   const currentDate = new Date();
   const formattedDate = currentDate.toLocaleDateString("en-GB");
-  const [donations, setDonations] = useState([]);
+  const { appState, setAppState } = useContext(AppState);
+  const [refreshTable, setRefreshTable] = useState(false);
   const [isAddingDonation, setIsAddingDonation] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [newDonation, setNewDonation] = useState(null);
-  const [refreshTable, setRefreshTable] = useState(false);
+  const [newDonation, setNewDonation] = useState({
+    type: "",
+    amount: "",
+    description: "",
+    purpose: "Donation",
+    memberNumber: "",
+    donationNumber: "",
+    confirmed: "01/01/2000",
+    confirmedBy: "N/A",
+    received: formattedDate,
+  });
 
   const [theme] = useMode();
   const colors = tokens(theme.palette.mode);
   const handleNewDonation = () => {
-    setNewDonation({
-      type: "",
-      amount: "",
-      description: "",
-      purpose: "",
-      memberNumber: "",
-      donationNumber: "DTest",
-      received: formattedDate,
-      confirmed: "01/01/2000",
-      confirmedBy: "N/A",
-    });
     handleOpenModal();
   };
 
@@ -67,8 +77,12 @@ const Unconfirmed = () => {
     }));
   };
 
+  const handleSelectChange = (event) => {
+    setNewDonation({ ...newDonation, type: event.target.value });
+  };
+
   const handleAddDonation = () => {
-    setIsAddingDonation(true);
+    //Create Donation
     fetch(process.env.REACT_APP_API_URL + "/Donations/Create", {
       method: "POST",
       headers: {
@@ -157,19 +171,26 @@ const Unconfirmed = () => {
                       },
                     }}
                   >
-                    <TextField
+                    <FormControl
                       fullWidth
                       variant="filled"
-                      type="text"
-                      label="Type"
-                      onBlur={handleBlur}
-                      onChange={handleInputChange}
-                      value={newDonation.type}
-                      name="type"
-                      error={!!touched.type && !!errors.type}
-                      helperText={touched.type && errors.type}
                       sx={{ gridColumn: "span 2" }}
-                    />
+                    >
+                      <InputLabel id="type-label">Donation Type</InputLabel>
+                      <Select
+                        labelId="type-label"
+                        id="type-select"
+                        value={newDonation.type}
+                        onChange={handleSelectChange}
+                        onBlur={handleBlur}
+                        error={!!touched.type && !!errors.type}
+                      >
+                        <MenuItem value="cash">Cash</MenuItem>
+                        <MenuItem value="ewallet">Ewallet</MenuItem>
+                        <MenuItem value="eft">EFT</MenuItem>
+                        <MenuItem value="other">Other</MenuItem>
+                      </Select>
+                    </FormControl>
                     <TextField
                       fullWidth
                       variant="filled"
@@ -181,36 +202,6 @@ const Unconfirmed = () => {
                       name="amount"
                       error={!!touched.amount && !!errors.amount}
                       helperText={touched.amount && errors.amount}
-                      sx={{ gridColumn: "span 2" }}
-                    />
-                    <TextField
-                      fullWidth
-                      variant="filled"
-                      type="text"
-                      multiline={true}
-                      rows={3}
-                      label="Description"
-                      onBlur={handleBlur}
-                      onChange={handleInputChange}
-                      value={newDonation.description}
-                      name="description"
-                      error={!!touched.description && !!errors.description}
-                      helperText={touched.description && errors.description}
-                      sx={{ gridColumn: "span 2" }}
-                    />
-                    <TextField
-                      fullWidth
-                      variant="filled"
-                      type="text"
-                      multiline={true}
-                      rows={3}
-                      label="Purpose"
-                      onBlur={handleBlur}
-                      onChange={handleInputChange}
-                      value={newDonation.purpose}
-                      name="purpose"
-                      error={!!touched.purpose && !!errors.purpose}
-                      helperText={touched.purpose && errors.purpose}
                       sx={{ gridColumn: "span 2" }}
                     />
                     <TextField
@@ -230,14 +221,29 @@ const Unconfirmed = () => {
                       fullWidth
                       variant="filled"
                       type="text"
-                      label="Confirmed By"
+                      label="Description"
                       onBlur={handleBlur}
                       onChange={handleInputChange}
-                      value={newDonation.confirmedBy}
-                      name="confimedBy"
-                      error={!!touched.confirmedby && !!errors.confirmedby}
-                      helperText={touched.confirmedby && errors.confirmedby}
+                      value={newDonation.type}
+                      name="description"
+                      error={!!touched.description && !!errors.description}
+                      helperText={touched.description && errors.description}
                       sx={{ gridColumn: "span 2" }}
+                      disabled
+                    />
+                    <TextField
+                      fullWidth
+                      variant="filled"
+                      type="text"
+                      label="Purpose"
+                      onBlur={handleBlur}
+                      onChange={handleInputChange}
+                      value={newDonation.purpose}
+                      name="purpose"
+                      error={!!touched.purpose && !!errors.purpose}
+                      helperText={touched.purpose && errors.purpose}
+                      sx={{ gridColumn: "span 2" }}
+                      disabled
                     />
                     <TextField
                       fullWidth
@@ -257,6 +263,20 @@ const Unconfirmed = () => {
                       fullWidth
                       variant="filled"
                       type="text"
+                      label="Confirmed By"
+                      onBlur={handleBlur}
+                      onChange={handleInputChange}
+                      value={appState.memberNumber}
+                      name="confirmedBy"
+                      error={!!touched.confirmedby && !!errors.confirmedby}
+                      helperText={touched.confirmedby && errors.confirmedby}
+                      sx={{ gridColumn: "span 2" }}
+                      disabled
+                    />
+                    <TextField
+                      fullWidth
+                      variant="filled"
+                      type="text"
                       label="Date Confirmed"
                       onBlur={handleBlur}
                       onChange={handleInputChange}
@@ -265,6 +285,25 @@ const Unconfirmed = () => {
                       error={!!touched.confirmed && !!errors.confirmed}
                       helperText={touched.confirmed && errors.confirmed}
                       sx={{ gridColumn: "span 2" }}
+                      disabled
+                    />
+                    <TextField
+                      fullWidth
+                      variant="filled"
+                      type="text"
+                      label="Donation Number"
+                      onBlur={handleBlur}
+                      onChange={handleInputChange}
+                      value={newDonation.donationNumber}
+                      name="donationNumber"
+                      error={
+                        !!touched.donationNumber && !!errors.donationNumber
+                      }
+                      helperText={
+                        touched.donationNumber && errors.donationNumber
+                      }
+                      sx={{ gridColumn: "span 2" }}
+                      disabled
                     />
                   </Box>
                   <Box
@@ -282,7 +321,10 @@ const Unconfirmed = () => {
                         padding: "10px 20px",
                         margin: "30px",
                       }}
-                      type="submit"
+                      onClick={() => {
+                        // getDonationNumber();
+                        handleAddDonation();
+                      }}
                     >
                       {isAddingDonation ? "Confirming..." : "Confirm"}
                       <SaveAsOutlinedIcon sx={{ ml: "10px" }} />

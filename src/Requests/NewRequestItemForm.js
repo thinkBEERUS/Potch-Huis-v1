@@ -13,14 +13,19 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Autocomplete,
 } from "@mui/material";
 import SaveIcon from "@mui/icons-material/Save";
-import { DataGrid } from "@mui/x-data-grid";
+import axios from "axios";
+import { Add } from "@mui/icons-material";
 
-function NewRequestItemForm() {
+function NewRequestItemForm(props) {
+  const currentDate = new Date();
+  const formattedDate = currentDate.toLocaleDateString("en-GB");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [requestItems, setRequestItems] = useState([]);
   const [totalValue, setTotalValue] = useState(0);
+  const [stock, setStock] = useState([]);
 
   const [currentItem, setCurrentItem] = useState({
     name: "",
@@ -53,16 +58,6 @@ function NewRequestItemForm() {
 
   const handleAddItem = () => {
     setRequestItems((prevState) => [...prevState, currentItem]);
-    setCurrentItem((prevState) => ({
-      name: "",
-      quantity: "",
-      value: "",
-      requestNumber: "",
-      stockNumber: "",
-      requestedItemNumber: "",
-      actualQuantity: "",
-      id: requestItems.length + 1,
-    }));
   };
 
   const handleSubmit = (event) => {
@@ -79,6 +74,18 @@ function NewRequestItemForm() {
       .catch((error) => console.error(error));
     handleCloseModal();
   };
+
+  useEffect(() => {
+    const fetchStock = async () => {
+      try {
+        const response = await axios.get("https://localhost:7287/ActiveStock");
+        setStock(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchStock();
+  }, []);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -103,21 +110,125 @@ function NewRequestItemForm() {
     calculateTotalValue();
   }, [requestItems]);
 
-  const columns = [
-    { field: "name", headerName: "Item Name", flex: 1 },
-    { field: "quantity", headerName: "Quantity", flex: 1 },
-    { field: "value", headerName: "Value", flex: 1 },
-    {
-      field: "totalValue",
-      headerName: "Total Value",
-      flex: 1,
-      valueGetter: (params) => {
-        return (params.getValue("value") * params.getValue("quantity")).toFixed(
-          2
-        );
+  const options = stock.map((stockItem) => ({
+    value: stockItem.value,
+    label: stockItem.name,
+  }));
+
+  const handleSelectChange = (selectedOption) => {
+    const selectedStock = stock.find(
+      (item) => item.name === selectedOption.target.innerText
+    );
+    setCurrentItem({
+      name: selectedStock.name,
+      quantity: "",
+      value: selectedStock.value + " /g",
+      requestNumber: "",
+      stockNumber: selectedStock.stockNumber,
+      requestedItemNumber: "RI_" + requestItems.length,
+      actualQuantity: "N/A",
+      id: requestItems.length + 1,
+    });
+  };
+
+  async function postRequest() {
+    const data = {
+      requestNumber: "",
+      memberNumber: props.memberNumber,
+      value: totalValue.toFixed(2).toString(),
+      received: formattedDate,
+      confirmed: formattedDate,
+      id: 0,
+    };
+
+    try {
+      const response = await fetch("https://localhost:7287/Requests/Create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "*/*",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const jsonResponse = await response.json();
+      return jsonResponse.message;
+    } catch (error) {
+      console.error("There was an error!", error);
+    }
+  }
+
+  function postItem(
+    name,
+    quantity,
+    value,
+    requestNumber,
+    stockNumber,
+    requestedItemNumber,
+    actualQuantity
+  ) {
+    console.log(requestNumber);
+    const url = process.env.REACT_APP_API_URL + "/Requests/Items"; // replace with actual API endpoint
+    const data = {
+      name: name,
+      quantity: quantity,
+      value: value,
+      requestNumber: requestNumber,
+      stockNumber: stockNumber,
+      requestedItemNumber: requestedItemNumber,
+      actualQuantity: actualQuantity,
+      id: 0,
+    };
+
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    },
-  ];
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((json) => {
+        console.log("API response:", json);
+      })
+      .catch((error) => {
+        console.error("Error posting data:", error);
+      });
+  }
+
+  function postRequestAndItems() {
+    // Call the first POST function to create the request
+    let requestNumber;
+
+    postRequest()
+      .then((value) => {
+        requestNumber = value;
+        //Call the second POST function for each item in the requestedItems array
+        requestItems.forEach((item) => {
+          postItem(
+            item.name,
+            item.quantity,
+            item.value,
+            requestNumber,
+            item.stockNumber,
+            item.requestedItemNumber,
+            item.actualQuantity
+          );
+        });
+      })
+      .catch((error) => {
+        console.error("There was an error!", error);
+      });
+  }
 
   return (
     <>
@@ -148,13 +259,18 @@ function NewRequestItemForm() {
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  label="Item Name"
-                  name="name"
-                  value={currentItem.name}
-                  onChange={handleInputChange}
+                <Autocomplete
+                  sx={{ flexGrow: 1, margin: "0.1vw" }}
+                  options={options}
+                  onChange={handleSelectChange}
+                  getOptionLabel={(option) => option.label}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Select an Item"
+                      variant="filled"
+                    />
+                  )}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -163,7 +279,7 @@ function NewRequestItemForm() {
                   fullWidth
                   label="Quantity"
                   name="quantity"
-                  type="number"
+                  type="text"
                   value={currentItem.quantity}
                   onChange={handleInputChange}
                 />
@@ -174,9 +290,10 @@ function NewRequestItemForm() {
                   fullWidth
                   label="Value"
                   name="value"
-                  type="number"
+                  type="text"
                   value={currentItem.value}
                   onChange={handleInputChange}
+                  disabled
                 />
               </Grid>
               <Grid item xs={12}>
@@ -187,6 +304,7 @@ function NewRequestItemForm() {
                   name="requestNumber"
                   value={currentItem.requestNumber}
                   onChange={handleInputChange}
+                  disabled
                 />
               </Grid>
               <Grid item xs={12}>
@@ -197,6 +315,7 @@ function NewRequestItemForm() {
                   name="stockNumber"
                   value={currentItem.stockNumber}
                   onChange={handleInputChange}
+                  disabled
                 />
               </Grid>
               <Grid item xs={12}>
@@ -207,6 +326,7 @@ function NewRequestItemForm() {
                   name="requestedItemNumber"
                   value={currentItem.requestedItemNumber}
                   onChange={handleInputChange}
+                  disabled
                 />
               </Grid>
               <Grid item xs={12}>
@@ -239,7 +359,7 @@ function NewRequestItemForm() {
                     currentItem.name === "" ||
                     currentItem.quantity === "" ||
                     currentItem.value === "" ||
-                    currentItem.requestNumber === "" ||
+                    //currentItem.requestNumber === "" ||
                     currentItem.stockNumber === "" ||
                     currentItem.requestedItemNumber === "" ||
                     currentItem.actualQuantity === ""
@@ -289,6 +409,16 @@ function NewRequestItemForm() {
           <Typography variant="h6" gutterBottom>
             Total Value: {totalValue.toFixed(2)}
           </Typography>
+          <Button
+            onClick={() => postRequestAndItems()}
+            variant="contained"
+            color="primary"
+            startIcon={<Add />}
+            sx={{ mt: "2%" }}
+            disabled={props.memberNumber === "" || requestItems.length < 1}
+          >
+            Create Request
+          </Button>
         </>
       )}
     </>

@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Button, Box, Typography, Modal, TextField } from "@mui/material";
+import {
+  Button,
+  Box,
+  Typography,
+  Modal,
+  TextField,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import { Formik } from "formik";
 import DoDisturbAltOutlinedIcon from "@mui/icons-material/DoDisturbAltOutlined";
 import SaveAsOutlinedIcon from "@mui/icons-material/SaveAsOutlined";
@@ -31,12 +41,12 @@ const Donations = () => {
       type: "",
       amount: "",
       description: "",
-      purpose: "",
+      purpose: "Donation",
       memberNumber: "",
-      donationNumber: "DTest",
+      donationNumber: "",
       confirmed: formattedDate,
       confirmedBy: appState.memberNumber,
-      received: "",
+      received: formattedDate,
     });
     handleOpenModal();
   };
@@ -68,8 +78,12 @@ const Donations = () => {
     }));
   };
 
+  const handleSelectChange = (event) => {
+    setNewDonation({ ...newDonation, type: event.target.value });
+  };
+
   const handleAddDonation = () => {
-    setIsAddingDonation(true);
+    //Create Donation
     fetch(process.env.REACT_APP_API_URL + "/Donations/Create", {
       method: "POST",
       headers: {
@@ -158,19 +172,26 @@ const Donations = () => {
                       },
                     }}
                   >
-                    <TextField
+                    <FormControl
                       fullWidth
                       variant="filled"
-                      type="text"
-                      label="Type"
-                      onBlur={handleBlur}
-                      onChange={handleInputChange}
-                      value={newDonation.type}
-                      name="type"
-                      error={!!touched.type && !!errors.type}
-                      helperText={touched.type && errors.type}
                       sx={{ gridColumn: "span 2" }}
-                    />
+                    >
+                      <InputLabel id="type-label">Donation Type</InputLabel>
+                      <Select
+                        labelId="type-label"
+                        id="type-select"
+                        value={newDonation.type}
+                        onChange={handleSelectChange}
+                        onBlur={handleBlur}
+                        error={!!touched.type && !!errors.type}
+                      >
+                        <MenuItem value="cash">Cash</MenuItem>
+                        <MenuItem value="ewallet">Ewallet</MenuItem>
+                        <MenuItem value="eft">EFT</MenuItem>
+                        <MenuItem value="other">Other</MenuItem>
+                      </Select>
+                    </FormControl>
                     <TextField
                       fullWidth
                       variant="filled"
@@ -188,23 +209,33 @@ const Donations = () => {
                       fullWidth
                       variant="filled"
                       type="text"
-                      multiline={true}
-                      rows={3}
-                      label="Description"
+                      label="Member Number"
                       onBlur={handleBlur}
                       onChange={handleInputChange}
-                      value={newDonation.description}
-                      name="description"
-                      error={!!touched.description && !!errors.description}
-                      helperText={touched.description && errors.description}
+                      value={newDonation.memberNumber}
+                      name="memberNumber"
+                      error={!!touched.memberNumber && !!errors.memberNumber}
+                      helperText={touched.memberNumber && errors.memberNumber}
                       sx={{ gridColumn: "span 2" }}
                     />
                     <TextField
                       fullWidth
                       variant="filled"
                       type="text"
-                      multiline={true}
-                      rows={3}
+                      label="Description"
+                      onBlur={handleBlur}
+                      onChange={handleInputChange}
+                      value={newDonation.type}
+                      name="description"
+                      error={!!touched.description && !!errors.description}
+                      helperText={touched.description && errors.description}
+                      sx={{ gridColumn: "span 2" }}
+                      disabled
+                    />
+                    <TextField
+                      fullWidth
+                      variant="filled"
+                      type="text"
                       label="Purpose"
                       onBlur={handleBlur}
                       onChange={handleInputChange}
@@ -213,6 +244,7 @@ const Donations = () => {
                       error={!!touched.purpose && !!errors.purpose}
                       helperText={touched.purpose && errors.purpose}
                       sx={{ gridColumn: "span 2" }}
+                      disabled
                     />
                     <TextField
                       fullWidth
@@ -226,19 +258,7 @@ const Donations = () => {
                       error={!!touched.received && !!errors.received}
                       helperText={touched.received && errors.received}
                       sx={{ gridColumn: "span 2" }}
-                    />
-                    <TextField
-                      fullWidth
-                      variant="filled"
-                      type="text"
-                      label="Member Number"
-                      onBlur={handleBlur}
-                      onChange={handleInputChange}
-                      value={newDonation.memberNumber}
-                      name="memberNumber"
-                      error={!!touched.memberNumber && !!errors.memberNumber}
-                      helperText={touched.memberNumber && errors.memberNumber}
-                      sx={{ gridColumn: "span 2" }}
+                      disabled
                     />
                     <TextField
                       fullWidth
@@ -284,6 +304,7 @@ const Donations = () => {
                         touched.donationNumber && errors.donationNumber
                       }
                       sx={{ gridColumn: "span 2" }}
+                      disabled
                     />
                   </Box>
                   <Box
@@ -301,7 +322,10 @@ const Donations = () => {
                         padding: "10px 20px",
                         margin: "30px",
                       }}
-                      onClick={handleAddDonation}
+                      onClick={() => {
+                        // getDonationNumber();
+                        handleAddDonation();
+                      }}
                     >
                       {isAddingDonation ? "Confirming..." : "Confirm"}
                       <SaveAsOutlinedIcon sx={{ ml: "10px" }} />
