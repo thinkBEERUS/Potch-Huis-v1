@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 import InsertChartOutlinedRoundedIcon from "@mui/icons-material/InsertChartOutlinedRounded";
 import HighlightOffOutlinedIcon from "@mui/icons-material/HighlightOffOutlined";
@@ -8,6 +8,9 @@ import Modal from "@mui/material/Modal";
 import BarChart from "./BarChart";
 import Unconfirmed from "./Unconfirmed";
 import { EditOutlined } from "@material-ui/icons";
+import { useMode, tokens } from "../theme";
+import { AppState } from "../AppState";
+import { useContext } from "react";
 
 const UnconfirmedTable = (props) => {
   const [page, setPage] = useState(0);
@@ -18,6 +21,13 @@ const UnconfirmedTable = (props) => {
   const [chartData, setChartData] = useState([]);
   const [showChart, setShowChart] = useState(false);
   const [refresh, setRefresh] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [selectedDonation, setSelectedDonation] = useState([]);
+  const [theme] = useMode();
+  const colors = tokens(theme.palette.mode);
+  const { appState, setAppState } = useContext(AppState);
+  const currentDate = new Date();
+  const formattedDate = currentDate.toLocaleDateString("en-GB");
 
   const handleChartShow = () => {
     setShowChart(true);
@@ -27,10 +37,10 @@ const UnconfirmedTable = (props) => {
     setShowChart(false);
   };
   const styleModal = {
-    marginTop: "10vh",
-    marginLeft: "10vw",
-    width: "80vw",
-    height: "80vh",
+    marginTop: "30vh",
+    marginLeft: "30vw",
+    width: "50%",
+    height: "50%",
     bgcolor: "primary.main",
     border: "2px solid #000",
     boxShadow: 24,
@@ -69,11 +79,6 @@ const UnconfirmedTable = (props) => {
       flex: 1,
       getActions: (params) => {
         return [
-          <EditOutlined
-            onClick={() => {
-              console.log(params.row);
-            }}
-          />,
           <DeleteForeverOutlinedIcon
             onClick={() => deleteDonation(params.row.donationNumber)}
           />,
@@ -86,9 +91,68 @@ const UnconfirmedTable = (props) => {
     setPage(params);
   };
 
-  // const handleRowDoubleClick = (params) => {
-  //   props.editMember(params.row);
-  // };
+  const handleConfirm = () => {
+    const endpoint =
+      "https://localhost:7287/Donations/Donation?donationNumber=" +
+      selectedDonation.donationNumber;
+
+    fetch(endpoint)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        // Handle the response data
+        const oldDonation = data[0];
+        const newDonation = {
+          type: oldDonation.type,
+          amount: oldDonation.amount,
+          received: oldDonation.received,
+          memberNumber: oldDonation.memberNumber,
+          donationNumber: oldDonation.donationNumber,
+          confirmed: formattedDate,
+          confirmedBy: appState.memberNumber,
+          id: 0,
+        };
+        //Update the Donation
+        const endpoint = "https://localhost:7287/Donations/Update";
+
+        fetch(endpoint, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newDonation),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`Request failed with status ${response.status}`);
+            }
+            return response.json();
+          })
+          .then((data) => {
+            // Handle the response data
+            console.log(data);
+          })
+          .catch((error) => {
+            // Handle any errors that occurred during the request
+            console.error(error);
+          });
+      })
+      .catch((error) => {
+        // Handle any errors that occurred during the request
+        console.error(error);
+      });
+    setOpen(false);
+    setRefresh(true);
+  };
+
+  const handleRowDoubleClick = (params) => {
+    setOpen(true);
+    setSelectedDonation(params.row);
+  };
 
   const handlePageSizeChange = (params) => {
     setPageSize(params);
@@ -113,7 +177,7 @@ const UnconfirmedTable = (props) => {
   useEffect(() => {
     fetchRows();
     fetchData();
-  }, [page, pageSize, refresh, props.refreshTable]);
+  }, [page, pageSize, refresh]);
 
   return (
     <Box
@@ -133,9 +197,8 @@ const UnconfirmedTable = (props) => {
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         rowCount={totalRows}
-        disableRowSelectionOnClick
         paginationMode="server"
-        //onRowDoubleClick={handleRowDoubleClick}
+        onRowDoubleClick={handleRowDoubleClick}
       />
       {showChart && (
         <Modal open={showChart} onClose={handleModalClose}>
@@ -146,6 +209,65 @@ const UnconfirmedTable = (props) => {
               </Button>
             </Box>
             <BarChart data={chartData} memberName={chartName} />
+          </Box>
+        </Modal>
+      )}
+
+      {open && (
+        <Modal
+          open={open}
+          onClose={() => setOpen(false)}
+          aria-labelledby="confirmation-modal-title"
+          aria-describedby="confirmation-modal-description"
+        >
+          <Box sx={styleModal}>
+            <h1 id="confirmation-modal-title">Confirm Donation</h1>
+            <h3 id="confirmation-modal-description">
+              Are you sure you want to confirm the donation{" "}
+              {selectedDonation.donationNumber}?
+            </h3>
+            <Typography>Details:</Typography>
+            <p>
+              Member&nbsp;&nbsp;Number:&nbsp;{selectedDonation.memberNumber}
+            </p>
+            <p>Donation&nbsp;&nbsp;Amount:&nbsp;{selectedDonation.amount}</p>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-around",
+              }}
+            >
+              <Button
+                sx={{
+                  backgroundColor: colors.itemColor,
+                  color: colors.typographyColor,
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  padding: "10px 20px",
+                  margin: "30px",
+                }}
+                onClick={() => {
+                  handleConfirm();
+                }}
+              >
+                Confirm Donation
+              </Button>
+              <Button
+                sx={{
+                  backgroundColor: colors.itemColor,
+                  color: colors.typographyColor,
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  padding: "10px 20px",
+                  margin: "30px",
+                }}
+                onClick={() => {
+                  setOpen(false);
+                }}
+              >
+                Cancel
+              </Button>
+            </Box>
           </Box>
         </Modal>
       )}

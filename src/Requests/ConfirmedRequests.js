@@ -103,7 +103,7 @@ const ConfirmedRequests = () => {
             backgroundColor: colors.itemColor,
             color: colors.typographyColor,
           }}
-          onClick={() => navigate("/NewRequestForm")}
+          onClick={() => navigate("/NewRequestForm?confirmed=true")}
         >
           <AddCircleOutlineOutlinedIcon />
         </Button>

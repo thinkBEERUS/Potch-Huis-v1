@@ -22,6 +22,7 @@ import * as yup from "yup";
 import UnconfirmedTable from "./UnconfirmedTable";
 import { AppState } from "../AppState";
 import { useContext } from "react";
+
 const Unconfirmed = () => {
   const currentDate = new Date();
   const formattedDate = currentDate.toLocaleDateString("en-GB");
@@ -32,21 +33,22 @@ const Unconfirmed = () => {
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [newDonation, setNewDonation] = useState({
-    type: "",
-    amount: "",
-    description: "",
-    purpose: "Donation",
-    memberNumber: "",
-    donationNumber: "",
-    confirmed: "01/01/2000",
-    confirmedBy: "N/A",
-    received: formattedDate,
-  });
+  const [newDonation, setNewDonation] = useState(null);
 
   const [theme] = useMode();
   const colors = tokens(theme.palette.mode);
   const handleNewDonation = () => {
+    setNewDonation({
+      type: "",
+      amount: "",
+      description: "",
+      purpose: "Donation",
+      memberNumber: "",
+      donationNumber: "",
+      confirmed: "01/01/2000",
+      confirmedBy: "N/A",
+      received: formattedDate,
+    });
     handleOpenModal();
   };
 
@@ -266,7 +268,7 @@ const Unconfirmed = () => {
                       label="Confirmed By"
                       onBlur={handleBlur}
                       onChange={handleInputChange}
-                      value={appState.memberNumber}
+                      value={newDonation.confirmedBy}
                       name="confirmedBy"
                       error={!!touched.confirmedby && !!errors.confirmedby}
                       helperText={touched.confirmedby && errors.confirmedby}

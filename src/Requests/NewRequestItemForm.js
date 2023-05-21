@@ -18,9 +18,13 @@ import {
 import SaveIcon from "@mui/icons-material/Save";
 import axios from "axios";
 import { Add } from "@mui/icons-material";
+import { AppState } from "../AppState";
+import { useContext } from "react";
 
 function NewRequestItemForm(props) {
   const currentDate = new Date();
+  const { appState, setAppState } = useContext(AppState);
+
   const formattedDate = currentDate.toLocaleDateString("en-GB");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [requestItems, setRequestItems] = useState([]);
@@ -132,12 +136,13 @@ function NewRequestItemForm(props) {
   };
 
   async function postRequest() {
+    console.log(props.confirmed);
     const data = {
       requestNumber: "",
       memberNumber: props.memberNumber,
       value: totalValue.toFixed(2).toString(),
       received: formattedDate,
-      confirmed: formattedDate,
+      confirmed: props.confirmed === "true" ? formattedDate : "01/01/2000",
       id: 0,
     };
 
@@ -205,6 +210,46 @@ function NewRequestItemForm(props) {
       });
   }
 
+  const getStockItemByName = (itemName) => {
+    return stock.find((item) => item.name === itemName) || null;
+  };
+
+  function updateStockItem(item) {
+    const url = process.env.REACT_APP_API_URL + "/Stock"; // replace with actual API endpoint
+    const tempItem = getStockItemByName(item.name);
+    const newQuantity = parseInt(tempItem.quantity) - item.actualQuantity;
+    const data = {
+      name: tempItem.name,
+      description: tempItem.description,
+      quantity: newQuantity.toString(),
+      value: tempItem.value,
+      lastUpdated: formattedDate,
+      active: tempItem.active,
+      stockNumber: tempItem.stockNumber,
+      id: tempItem.id,
+    };
+
+    fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((json) => {
+        console.log("API response:", json);
+      })
+      .catch((error) => {
+        console.error("Error updating data:", error);
+      });
+  }
+
   function postRequestAndItems() {
     // Call the first POST function to create the request
     let requestNumber;
@@ -223,10 +268,39 @@ function NewRequestItemForm(props) {
             item.requestedItemNumber,
             item.actualQuantity
           );
+
+          // Update Stock
+          updateStockItem(item);
         });
       })
       .catch((error) => {
         console.error("There was an error!", error);
+      });
+
+    //Create Donation
+    fetch(process.env.REACT_APP_API_URL + "/Donations/Create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        type: "EFT",
+        amount: totalValue.toFixed(2),
+        description: "Donation",
+        purpose: "Donation",
+        memberNumber: props.memberNumber,
+        donationNumber: "",
+        received: formattedDate,
+        confirmed: props.confirmed === "true" ? formattedDate : "01/01/2000",
+        confirmedby: props.confirmed === "true" ? appState.memberNumber : "N/A",
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => {
+        console.error(error);
       });
   }
 

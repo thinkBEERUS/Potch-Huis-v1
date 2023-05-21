@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import { TextField, Button, Box, Typography, Grid, Paper } from "@mui/material";
 import NewRequestItemForm from "./NewRequestItemForm";
+import { useLocation } from "react-router-dom";
 
 function NewRequestForm() {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const propValue = searchParams.get("confirmed");
   const [requestData, setRequestData] = useState({
     memberNumber: "",
   });
@@ -35,7 +39,10 @@ function NewRequestForm() {
             />
           </Grid>
           <Grid item xs={12}>
-            <NewRequestItemForm memberNumber={requestData.memberNumber} />
+            <NewRequestItemForm
+              memberNumber={requestData.memberNumber}
+              confirmed={propValue}
+            />
           </Grid>
         </Grid>
       </Paper>
