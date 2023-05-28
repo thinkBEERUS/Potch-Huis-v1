@@ -5,7 +5,6 @@ import Register from "./Auth/Register";
 import Members from "./Members/Members";
 import Stock from "./Stock/Stock";
 import Menu from "./Menu/MenuStock";
-import MemberDonations from "./Members/MemberDonations";
 import DocumentList from "./Auth/DocumentList";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { CssBaseline, ThemeProvider } from "@mui/material";
@@ -22,6 +21,8 @@ import { AppState } from "./AppState";
 import UnconfirmedRequests from "./Requests/UnconfirmedRequests";
 import NewRequestForm from "./Requests/NewRequestForm";
 import Unconfirmed from "./Donations/Unconfirmed";
+import Reporting from "./Members/Reporting";
+import FAQPage from "./faq";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -86,7 +87,8 @@ function App() {
                   <Route path="Unconfirmed" element={<Unconfirmed />} />
                   {/* <Route path="Requests" element={<Requests />} /> */}
                   <Route path="RequestedItems" element={<RequestedItems />} />
-                  <Route path="MemberDonations" element={<MemberDonations />} />
+                  <Route path="Reporting" element={<Reporting />} />
+                  <Route path="faq" element={<FAQPage />} />
                   <Route path="NewRequestForm" element={<NewRequestForm />} />
                   <Route
                     path="ConfirmedRequests"

@@ -1,351 +1,291 @@
-import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
+import {
+  Box,
+  Button,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  useTheme,
+} from "@mui/material";
 import { tokens } from "../theme";
-import { mockTransactions } from "../data/mockData";
-import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
-import EmailIcon from "@mui/icons-material/Email";
-import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import TrafficIcon from "@mui/icons-material/Traffic";
-import Header from "../ed-roh/components/Header";
+import StockTable from "../Stock/StockTable";
+import MemberTable from "../Members/MemberTable";
 import StatBox from "../ed-roh/components/StatBox";
-import { ResponsivePie } from "@nivo/pie";
-
-const data = [
-  {
-    id: "Edibles",
-    label: "Edibles",
-    value: 45,
-    color: "hsl(173, 70%, 50%)",
-  },
-  {
-    id: "Jays",
-    label: "Jays",
-    value: 533,
-    color: "hsl(129, 70%, 50%)",
-  },
-  {
-    id: "Buds",
-    label: "Buds",
-    value: 329,
-    color: "hsl(229, 70%, 50%)",
-  },
-  {
-    id: "In-House",
-    label: "In-House",
-    value: 339,
-    color: "hsl(185, 70%, 50%)",
-  },
-  {
-    id: "Snacks etc.",
-    label: "Snacks etc.",
-    value: 166,
-    color: "hsl(153, 70%, 50%)",
-  },
-];
+import React, { useState } from "react";
+import { DataGrid } from "@mui/x-data-grid";
+import DonationTable from "../Donations/DonationTable";
+import UnconfirmedTable from "../Donations/UnconfirmedTable";
+import ConfirmedRequests from "../Requests/ConfirmedRequests";
+import UnconfirmedRequests from "../Requests/UnconfirmedRequests";
+import {
+  CircleNotificationsOutlined,
+  DeliveryDining,
+  ExpandCircleDown,
+  HeartBroken,
+  OnlinePredictionRounded,
+  Person2,
+  PersonAddAlt,
+  PersonAddAlt1Outlined,
+} from "@mui/icons-material";
+import {
+  DonutLarge,
+  Favorite,
+  ImportantDevices,
+  MonetizationOn,
+  Star,
+} from "@material-ui/icons";
 
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const [expandedAccordion, setExpandedAccordion] = useState(null);
+
+  const handleAccordionChange = (panel) => (event, isExpanded) => {
+    setExpandedAccordion(isExpanded ? panel : false);
+  };
 
   return (
-    <Box m="20px">
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
-        <Box>
-          <Button
-            sx={{
-              backgroundColor: colors.backgroundColor,
-              color: colors.typographyColor,
-              fontSize: "14px",
-              fontWeight: "bold",
-              padding: "10px 20px",
-            }}
-          >
-            <DownloadOutlinedIcon sx={{ mr: "10px" }} />
-            Download Reports
-          </Button>
-        </Box>
-      </Box>
-
-      {/* GRID & CHARTS */}
-      <Box
-        display="grid"
-        gridTemplateColumns="repeat(12, 1fr)"
-        gridAutoRows="140px"
-        gap="50px"
-      >
-        {/* ROW 1 */}
+    <Box>
+      <Box display="flex" justifyContent="space-evenly" flexWrap={"wrap"}>
         <Box
-          gridColumn="span 3"
           backgroundColor={colors.backgroundColor}
           display="flex"
           alignItems="center"
           justifyContent="center"
+          flexGrow="1"
+          height={"15vh"}
+          margin={"1vw"}
         >
           <StatBox
             title="41"
-            subtitle="Emails Sent"
+            subtitle="Donations Received"
             progress="0.75"
             increase="+14%"
-            icon={<EmailIcon sx={{ fontSize: "26px" }} />}
+            icon={<MonetizationOn sx={{ fontSize: "26px" }} />}
           />
         </Box>
         <Box
-          gridColumn="span 3"
           backgroundColor={colors.backgroundColor}
           display="flex"
           alignItems="center"
           justifyContent="center"
+          flexGrow="1"
+          height={"15vh"}
+          margin={"1vw"}
         >
           <StatBox
             title="20"
             subtitle="Requests Received"
             progress="1"
             increase="+21%"
-            icon={<PointOfSaleIcon sx={{ fontSize: "26px" }} />}
+            icon={<OnlinePredictionRounded sx={{ fontSize: "26px" }} />}
           />
         </Box>
         <Box
-          gridColumn="span 3"
           backgroundColor={colors.backgroundColor}
           display="flex"
           alignItems="center"
           justifyContent="center"
+          flexGrow="1"
+          height={"15vh"}
+          margin={"1vw"}
         >
           <StatBox
             title="4"
             subtitle="New Members"
             progress="0.90"
             increase="+5%"
-            icon={<PersonAddIcon sx={{ fontSize: "26px" }} />}
+            icon={<PersonAddAlt sx={{ fontSize: "26px" }} />}
           />
         </Box>
         <Box
-          gridColumn="span 3"
           backgroundColor={colors.backgroundColor}
           display="flex"
           alignItems="center"
           justifyContent="center"
+          flexGrow="1"
+          height={"15vh"}
+          margin={"1vw"}
         >
           <StatBox
             title="17/20"
             subtitle="Deliveries Made"
             progress="0.70"
             increase="+13%"
-            icon={<TrafficIcon sx={{ fontSize: "26px" }} />}
+            icon={<DeliveryDining sx={{ fontSize: "26px" }} />}
           />
         </Box>
 
-        {/* ROW 2 */}
         <Box
-          gridColumn="span 8"
-          gridRow="span 3"
           backgroundColor={colors.backgroundColor}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          flexGrow="1"
+          height={"15vh"}
+          margin={"1vw"}
         >
-          <Box
-            mt="25px"
-            p="0 30px"
-            display="flex "
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <Box>
-              <Typography
-                variant="h5"
-                fontWeight="600"
-                color={colors.typographyColor}
-              >
-                Revenue Generated
-              </Typography>
-              <Typography
-                variant="h3"
-                fontWeight="bold"
-                color={colors.backgroundColor}
-              >
-                R9 113.00
-              </Typography>
-            </Box>
-            <Box>
-              <IconButton>
-                <DownloadOutlinedIcon
-                  sx={{ fontSize: "26px", color: colors.backgroundColor }}
-                />
-              </IconButton>
-            </Box>
-          </Box>
-          <div style={{ height: "80%" }}>
-            <ResponsivePie
-              data={data}
-              margin={{ top: 100, right: 100, bottom: 100, left: 100 }}
-              padding={150}
-              innerRadius={0.5}
-              padAngle={0.7}
-              cornerRadius={3}
-              activeOuterRadiusOffset={8}
-              borderWidth={1}
-              itemHeight="80%"
-              borderColor={{
-                from: "color",
-                modifiers: [["darker", 0.2]],
-              }}
-              arcLinkLabelsSkipAngle={10}
-              arcLinkLabelsTextColor={"white"}
-              arcLinkLabelsThickness={2}
-              arcLinkLabelsColor={"white"}
-              arcLabelsSkipAngle={10}
-              arcLabelsTextColor={"white"}
-              defs={[
-                {
-                  id: "dots",
-                  type: "patternDots",
-                  background: "inherit",
-                  color: "rgba(255, 255, 255, 0.3)",
-                  size: 4,
-                  padding: 1,
-                  stagger: true,
-                },
-                {
-                  id: "lines",
-                  type: "patternLines",
-                  background: "inherit",
-                  color: "rgba(255, 255, 255, 0.3)",
-                  rotation: -45,
-                  lineWidth: 6,
-                  spacing: 10,
-                },
-              ]}
-              fill={[
-                {
-                  match: {
-                    id: "ruby",
-                  },
-                  id: "dots",
-                },
-                {
-                  match: {
-                    id: "c",
-                  },
-                  id: "dots",
-                },
-                {
-                  match: {
-                    id: "go",
-                  },
-                  id: "dots",
-                },
-                {
-                  match: {
-                    id: "python",
-                  },
-                  id: "dots",
-                },
-                {
-                  match: {
-                    id: "scala",
-                  },
-                  id: "lines",
-                },
-                {
-                  match: {
-                    id: "lisp",
-                  },
-                  id: "lines",
-                },
-                {
-                  match: {
-                    id: "elixir",
-                  },
-                  id: "lines",
-                },
-                {
-                  match: {
-                    id: "Budsscript",
-                  },
-                  id: "lines",
-                },
-              ]}
-              legends={[
-                {
-                  anchor: "bottom",
-                  direction: "row",
-                  justify: false,
-                  translateX: 0,
-                  translateY: 56,
-                  itemsSpacing: 0,
-                  itemWidth: 100,
-                  itemHeight: 18,
-                  itemTextColor: "#999",
-                  itemDirection: "left-to-right",
-                  itemOpacity: 1,
-                  symbolSize: 18,
-                  symbolShape: "circle",
-                  effects: [
-                    {
-                      on: "hover",
-                      style: {
-                        itemTextColor: "#000",
-                      },
-                    },
-                  ],
-                },
-              ]}
-            />
-          </div>
+          <StatBox
+            title="Frequent Flier"
+            subtitle="PH00001ADM"
+            progress="-0.75"
+            increase="-14%"
+            icon={<ImportantDevices sx={{ fontSize: "26px" }} />}
+          />
         </Box>
         <Box
-          gridColumn="span 4"
-          gridRow="span 3"
           backgroundColor={colors.backgroundColor}
-          overflow="auto"
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          flexGrow="1"
+          height={"15vh"}
+          margin={"1vw"}
         >
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            borderBottom={`4px solid ${colors.backgroundColor}`}
-            colors={colors.typographyColor}
-            p="15px"
-          >
-            <Typography
-              color={colors.typographyColor}
-              variant="h5"
-              fontWeight="600"
-            >
-              Recent Transactions
-            </Typography>
-          </Box>
-          {mockTransactions.map((transaction, i) => (
-            <Box
-              key={`${transaction.txId}-${i}`}
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-              borderBottom={`4px solid ${colors.backgroundColor}`}
-              p="15px"
-            >
-              <Box>
-                <Typography
-                  color={colors.backgroundColor}
-                  variant="h5"
-                  fontWeight="600"
-                >
-                  {transaction.txId}
-                </Typography>
-                <Typography color={colors.typographyColor}>
-                  {transaction.user}
-                </Typography>
-              </Box>
-              <Box color={colors.typographyColor}>{transaction.date}</Box>
-              <Box
-                backgroundColor={colors.backgroundColor}
-                p="5px 10px"
-                borderRadius="4px"
-              >
-                R{transaction.cost}
-              </Box>
-            </Box>
-          ))}
+          <StatBox
+            title="Big Spender"
+            subtitle="PH00001ADM"
+            progress="0.7"
+            increase="+45%"
+            icon={<Star sx={{ fontSize: "26px" }} />}
+          />
         </Box>
+        <Box
+          backgroundColor={colors.backgroundColor}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          flexGrow="1"
+          height={"15vh"}
+          margin={"1vw"}
+        >
+          <StatBox
+            title="Least Popular"
+            subtitle="Banana Apple"
+            progress="-0.75"
+            increase="-14%"
+            icon={<HeartBroken sx={{ fontSize: "26px" }} />}
+          />
+        </Box>
+        <Box
+          backgroundColor={colors.backgroundColor}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          flexGrow="1"
+          height={"15vh"}
+          margin={"1vw"}
+        >
+          <StatBox
+            title="Most Popular"
+            subtitle="Outdoor"
+            progress="0.7"
+            increase="+45%"
+            icon={<Favorite sx={{ fontSize: "26px" }} />}
+          />
+        </Box>
+      </Box>
+
+      <Box display={"flex"} flexDirection={"column"} margin={"1vw"}>
+        {/* Accordion 1 */}
+        <Accordion
+          expanded={expandedAccordion === "donations"}
+          onChange={handleAccordionChange("donations")}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandCircleDown />}
+            aria-controls="donations-panel"
+            id="donations-header"
+          >
+            <h3>Confirmed Donations</h3>
+          </AccordionSummary>
+          <AccordionDetails>
+            <DonationTable />
+          </AccordionDetails>
+        </Accordion>
+
+        {/* Accordion 2 */}
+        <Accordion
+          expanded={expandedAccordion === "unconfirmed-donations"}
+          onChange={handleAccordionChange("unconfirmed-donations")}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandCircleDown />}
+            aria-controls="unconfirmed-donations-panel"
+            id="unconfirmed-donations-header"
+          >
+            <h3>Unconfirmed Donations</h3>
+          </AccordionSummary>
+          <AccordionDetails>
+            <UnconfirmedTable />
+          </AccordionDetails>
+        </Accordion>
+
+        {/* Accordion 3 */}
+        <Accordion
+          expanded={expandedAccordion === "requests"}
+          onChange={handleAccordionChange("requests")}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandCircleDown />}
+            aria-controls="requests-panel"
+            id="requests-header"
+          >
+            <h3>Confirmed Requests</h3>
+          </AccordionSummary>
+          <AccordionDetails>
+            <ConfirmedRequests />
+          </AccordionDetails>
+        </Accordion>
+
+        <Accordion
+          expanded={expandedAccordion === "unconfirmed-requests"}
+          onChange={handleAccordionChange("unconfirmed-requests")}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandCircleDown />}
+            aria-controls="unconfirmed-requests-panel"
+            id="unconfirmed-requests-header"
+          >
+            <h3>Unconfirmed Requests</h3>
+          </AccordionSummary>
+          <AccordionDetails>
+            <UnconfirmedRequests />
+          </AccordionDetails>
+        </Accordion>
+
+        {/* Accordion 4 */}
+        <Accordion
+          expanded={expandedAccordion === "stock"}
+          onChange={handleAccordionChange("stock")}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandCircleDown />}
+            aria-controls="stock-panel"
+            id="stock-header"
+          >
+            <h3>Stock</h3>
+          </AccordionSummary>
+          <AccordionDetails>
+            <StockTable />
+          </AccordionDetails>
+        </Accordion>
+
+        {/* Accordion 5 */}
+        <Accordion
+          expanded={expandedAccordion === "members"}
+          onChange={handleAccordionChange("members")}
+        >
+          <AccordionSummary
+            expandIcon={<ExpandCircleDown />}
+            aria-controls="members-panel"
+            id="members-header"
+          >
+            <h3>Members</h3>
+          </AccordionSummary>
+          <AccordionDetails>
+            <MemberTable />
+          </AccordionDetails>
+        </Accordion>
       </Box>
     </Box>
   );

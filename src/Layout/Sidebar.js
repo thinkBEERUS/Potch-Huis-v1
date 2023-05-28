@@ -153,8 +153,8 @@ function Sidebar({ show }) {
                 setSelected={setSelected}
               />
               <Item
-                title="Member Donations"
-                to="/MemberDonations"
+                title="Reporting"
+                to="/Reporting"
                 icon={<RequestPageOutlinedIcon />}
                 selected={selected}
                 setSelected={setSelected}
