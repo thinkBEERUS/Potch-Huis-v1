@@ -56,42 +56,15 @@ function MenuCard(props) {
           padding: "5px",
         }}
       >
-        <CardActions
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-          }}
+        <Typography
+          sx={{ display: "flex", padding: "5px" }}
+          variant="h3"
+          color="text.primary"
+          fontWeight="bold"
         >
-          <Button
-            sx={{
-              backgroundColor: colors.itemColor,
-              color: colors.typographyColor,
-              fontSize: "14px",
-              fontWeight: "bold",
-              padding: "10px 20px",
-              margin: "1%",
-            }}
-            onClick={() => console.log("Add Chart")}
-          >
-            <InsertChartOutlinedRoundedIcon />
-          </Button>
-          <Button
-            sx={{
-              backgroundColor: colors.itemColor,
-              color: colors.typographyColor,
-              fontSize: "14px",
-              fontWeight: "bold",
-              padding: "10px 20px",
-              margin: "1%",
-            }}
-            onClick={() => {
-              console.log("Add Last 5 Requests by member.");
-            }}
-          >
-            <Replay5Icon />
-          </Button>
-        </CardActions>
+          {props.name}
+        </Typography>
+        <br />
         <Box sx={{ padding: "0.5vw" }}>
           <CardMedia
             onClick={() => console.log("Image clicked.")}
@@ -118,15 +91,6 @@ function MenuCard(props) {
               }}
             >
               <Typography
-                sx={{ display: "flex", padding: "5px" }}
-                variant="h3"
-                color="text.primary"
-                fontWeight="bold"
-              >
-                {props.name}
-              </Typography>
-              <Divider />
-              <Typography
                 sx={{
                   padding: "5px",
                   display: "flex",
@@ -136,8 +100,10 @@ function MenuCard(props) {
               >
                 {props.description}
               </Typography>
-              <Divider />
             </Box>
+            <br />
+            <Divider />
+            <br />
             <Box
               sx={{
                 display: "flex",

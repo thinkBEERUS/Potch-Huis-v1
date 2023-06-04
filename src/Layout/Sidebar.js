@@ -14,6 +14,7 @@ import MenuBookOutlinedIcon from "@mui/icons-material/MenuBookOutlined";
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
 import InventoryOutlinedIcon from "@mui/icons-material/InventoryOutlined";
 import { AppState } from "../AppState";
+import { LogoutOutlined } from "@mui/icons-material";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -39,137 +40,146 @@ function Sidebar({ show }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
   const { appState } = useContext(AppState);
+  const memberNumber = appState.memberNumber;
+
+  const isAdmin = memberNumber.endsWith("ADM");
 
   if (show) {
     return (
-      <Box
-        id="sidebar"
-        sx={{
-          "& .pro-sidebar-inner": {
-            background: `${colors.backgroundColor} !important`,
-          },
-          "& .pro-icon-wrapper": {
-            backgroundColor: "transparent !important",
-          },
-          "& .pro-inner-item": {
-            padding: "5px 35px 5px 20px !important",
-          },
-          "& .pro-inner-item:hover": {
-            color: `${colors.typographyColor} !important`,
-          },
-          "& .pro-menu-item.active": {
-            color: `${colors.typographyColor} !important`,
-          },
-        }}
-      >
-        <ProSidebar
-          collapsed={isCollapsed}
-          // style={{
-          //   height: "auto",
-          // }}
-        >
-          <Menu iconShape="square">
-            {/* LOGO AND MENU ICON */}
-            <MenuItem
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
+      <>
+        {isAdmin && (
+          <Box
+            id="sidebar"
+            sx={{
+              "& .pro-sidebar-inner": {
+                background: `${colors.backgroundColor} !important`,
+              },
+              "& .pro-icon-wrapper": {
+                backgroundColor: "transparent !important",
+              },
+              "& .pro-inner-item": {
+                padding: "5px 35px 5px 20px !important",
+              },
+              "& .pro-inner-item:hover": {
+                color: `${colors.typographyColor} !important`,
+              },
+              "& .pro-menu-item.active": {
+                color: `${colors.typographyColor} !important`,
+              },
+            }}
+          >
+            <ProSidebar
+              collapsed={isCollapsed}
               style={{
-                margin: "10px 0 20px 0",
-                color: colors.typographyColor,
+                top: 0,
+                bottom: 0,
               }}
             >
-              {!isCollapsed && (
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  ml="15px"
+              <Menu iconShape="square">
+                {/* LOGO AND MENU ICON */}
+                <MenuItem
+                  onClick={() => setIsCollapsed(!isCollapsed)}
+                  icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
+                  style={{
+                    margin: "10px 0 20px 0",
+                    color: colors.typographyColor,
+                  }}
                 >
-                  <Typography variant="h3" color={colors.typographyColor}>
-                    {appState.memberNumber}
-                  </Typography>
-                  <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
-                    <MenuOutlinedIcon />
-                  </IconButton>
-                </Box>
-              )}
-            </MenuItem>
+                  {!isCollapsed && (
+                    <Box
+                      display="flex"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      ml="15px"
+                    >
+                      <Typography variant="h3" color={colors.typographyColor}>
+                        {appState.memberNumber}
+                      </Typography>
+                      <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
+                        <MenuOutlinedIcon />
+                      </IconButton>
+                    </Box>
+                  )}
+                </MenuItem>
 
-            <Box paddingLeft={isCollapsed ? undefined : "10%"}>
-              <Item
-                title="Dashboard"
-                to="/Dashboard"
-                icon={<HomeOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-              <Item
-                title="Stock"
-                to="/Stock"
-                icon={<InventoryOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-              <Item
-                title="Members"
-                to="/Members"
-                icon={<PeopleOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-              <Item
-                title="Menu"
-                to="/Menu"
-                icon={<MenuBookOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-              <Item
-                title="Confirmed Donations"
-                to="/Donations"
-                icon={<MonetizationOnOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-              <Item
-                title="Unconfirmed Donations"
-                to="/Unconfirmed"
-                icon={<MonetizationOnOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-              <Item
-                title="Confirmed Requests"
-                to="/ConfirmedRequests"
-                icon={<RequestPageOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-              <Item
-                title="Unconfirmed Requests"
-                to="/UnconfirmedRequests"
-                icon={<RequestPageOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-              <Item
-                title="Reporting"
-                to="/Reporting"
-                icon={<RequestPageOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-              <Item
-                title="FAQ Page"
-                to="/faq"
-                icon={<HelpOutlineOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-            </Box>
-          </Menu>
-        </ProSidebar>
-      </Box>
+                <Box paddingLeft={isCollapsed ? undefined : "10%"}>
+                  <Item
+                    title="Dashboard"
+                    to="/Dashboard"
+                    icon={<HomeOutlinedIcon />}
+                    selected={selected}
+                    setSelected={setSelected}
+                  />
+                  <Item
+                    title="Stock"
+                    to="/Stock"
+                    icon={<InventoryOutlinedIcon />}
+                    selected={selected}
+                    setSelected={setSelected}
+                  />
+                  <Item
+                    title="Members"
+                    to="/Members"
+                    icon={<PeopleOutlinedIcon />}
+                    selected={selected}
+                    setSelected={setSelected}
+                  />
+                  <Item
+                    title="Menu"
+                    to="/Menu"
+                    icon={<MenuBookOutlinedIcon />}
+                    selected={selected}
+                    setSelected={setSelected}
+                  />
+                  <Item
+                    title="Confirmed Donations"
+                    to="/Donations"
+                    icon={<MonetizationOnOutlinedIcon />}
+                    selected={selected}
+                    setSelected={setSelected}
+                  />
+                  <Item
+                    title="Unconfirmed Donations"
+                    to="/Unconfirmed"
+                    icon={<MonetizationOnOutlinedIcon />}
+                    selected={selected}
+                    setSelected={setSelected}
+                  />
+                  <Item
+                    title="Confirmed Requests"
+                    to="/ConfirmedRequests"
+                    icon={<RequestPageOutlinedIcon />}
+                    selected={selected}
+                    setSelected={setSelected}
+                  />
+                  <Item
+                    title="Unconfirmed Requests"
+                    to="/UnconfirmedRequests"
+                    icon={<RequestPageOutlinedIcon />}
+                    selected={selected}
+                    setSelected={setSelected}
+                  />
+                  <Item
+                    title="Reporting"
+                    to="/Reporting"
+                    icon={<RequestPageOutlinedIcon />}
+                    selected={selected}
+                    setSelected={setSelected}
+                  />
+                  <Item
+                    title="FAQ Page"
+                    to="/faq"
+                    icon={<HelpOutlineOutlinedIcon />}
+                    selected={selected}
+                    setSelected={setSelected}
+                  />
+                  <Item title="Logout" to="/Login" icon={<LogoutOutlined />} />
+                </Box>
+              </Menu>
+            </ProSidebar>
+          </Box>
+        )}
+      </>
     );
   }
 }

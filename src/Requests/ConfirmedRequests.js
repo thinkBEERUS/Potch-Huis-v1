@@ -52,7 +52,7 @@ const ConfirmedRequests = () => {
 
   function handleShowItems(params) {
     fetch(
-      `https://localhost:7287/Requests/ItemRequest/${params.row.requestNumber}`,
+      `${process.env.REACT_APP_API_URL}/Requests/ItemRequest/${params.row.requestNumber}`,
       {
         method: "GET",
         headers: {

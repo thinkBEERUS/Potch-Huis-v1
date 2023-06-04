@@ -24,14 +24,19 @@ import {
 import SaveIcon from "@mui/icons-material/Save";
 import { useMode, tokens } from "../theme";
 import {
+  Check,
   HideSourceOutlined,
   RequestQuote,
+  RequestQuoteSharp,
   ShoppingBagTwoTone,
+  TravelExplore,
 } from "@mui/icons-material";
 import MenuCard from "./MenuCard";
 import { useState } from "react";
 import { useEffect } from "react";
 import SimpleBackdrop from "../Layout/Backdrop";
+import { AppState } from "../AppState";
+import { useContext } from "react";
 
 // import Select from "react-select";
 
@@ -49,6 +54,8 @@ const Menu = () => {
     process.env.REACT_APP_API_URL + "/AllStock?pageNumber=1&pageSize=1000";
   const [showItems, setShowItems] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const currentDate = new Date();
+  const formattedDate = currentDate.toLocaleDateString("en-GB");
 
   const selectOptions = allStock.map((item) => ({
     value: item.stockNumber,
@@ -57,6 +64,7 @@ const Menu = () => {
 
   const [requestItems, setRequestItems] = useState([]);
   const [totalValue, setTotalValue] = useState(0);
+  const [donationType, setDonaionType] = useState("");
 
   const [currentItem, setCurrentItem] = useState({
     name: "",
@@ -105,7 +113,7 @@ const Menu = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    fetch("https://localhost:7287/Requests/Items", {
+    fetch(process.env.REACT_APP_API_URL + "/Requests/Items", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -147,7 +155,7 @@ const Menu = () => {
     );
     const updatedStock = { ...stock, active: !stock.active };
     axios
-      .put(`https://localhost:7287/Stock`, updatedStock)
+      .put(process.env.REACT_APP_API_URL + "/Stock", updatedStock)
       .then((response) => console.log(response.data))
       .catch((error) => console.error(error));
     setSelectedStock(selectedOption);
@@ -166,41 +174,222 @@ const Menu = () => {
     setIsLoading(false);
   };
 
+  const handleDonationChange = (selectedOption) => {
+    setDonaionType(selectedOption.target.innerText);
+  };
+
   useEffect(() => {
     fetchStock();
   }, [selectedStock]);
 
+  const { appState } = useContext(AppState);
+  const memberNumber = appState.memberNumber;
+  const isAdmin = memberNumber.endsWith("ADM");
+
+  async function postRequest() {
+    const data = {
+      requestNumber: "",
+      memberNumber: appState.memberNumber,
+      value: totalValue.toFixed(2).toString(),
+      received: formattedDate,
+      confirmed: "01/01/2000",
+      id: 0,
+    };
+
+    try {
+      const response = await fetch(
+        process.env.REACT_APP_API_URL + "/Requests/Create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "*/*",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const jsonResponse = await response.json();
+      return jsonResponse.message;
+    } catch (error) {
+      console.error("There was an error!", error);
+    }
+  }
+
+  function postItem(
+    name,
+    quantity,
+    value,
+    requestNumber,
+    stockNumber,
+    requestedItemNumber,
+    actualQuantity
+  ) {
+    const url = process.env.REACT_APP_API_URL + "/Requests/Items"; // replace with actual API endpoint
+    const data = {
+      name: name,
+      quantity: quantity,
+      value: value,
+      requestNumber: requestNumber,
+      stockNumber: stockNumber,
+      requestedItemNumber: requestedItemNumber,
+      actualQuantity: actualQuantity,
+      id: 0,
+    };
+
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((json) => {
+        console.log("API response:", json);
+      })
+      .catch((error) => {
+        console.error("Error posting data:", error);
+      });
+  }
+
+  const getStockItemByName = (itemName) => {
+    return stock.find((item) => item.name === itemName) || null;
+  };
+
+  function updateStockItem(item) {
+    const url = process.env.REACT_APP_API_URL + "/Stock"; // replace with actual API endpoint
+    const tempItem = getStockItemByName(item.name);
+    const newQuantity = parseInt(tempItem.quantity) - item.quantity;
+    const data = {
+      name: tempItem.name,
+      description: tempItem.description,
+      quantity: newQuantity.toString(),
+      value: tempItem.value,
+      lastUpdated: formattedDate,
+      active: tempItem.active,
+      stockNumber: tempItem.stockNumber,
+      id: tempItem.id,
+    };
+
+    fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((json) => {
+        console.log("API response:", json);
+      })
+      .catch((error) => {
+        console.error("Error updating data:", error);
+      });
+  }
+
+  function postRequestAndItems() {
+    // Call the first POST function to create the request
+    let requestNumber;
+
+    postRequest()
+      .then((value) => {
+        requestNumber = value;
+        //Call the second POST function for each item in the requestedItems array
+        requestItems.forEach((item) => {
+          postItem(
+            item.name,
+            item.quantity,
+            item.value,
+            requestNumber,
+            item.stockNumber,
+            item.requestedItemNumber,
+            item.actualQuantity
+          );
+
+          // Update Stock
+          updateStockItem(item);
+        });
+      })
+      .catch((error) => {
+        console.error("There was an error!", error);
+      });
+
+    //Create Donation
+    fetch(process.env.REACT_APP_API_URL + "/Donations/Create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        type: donationType,
+        amount: totalValue.toFixed(2),
+        description: "Donation",
+        purpose: "Donation",
+        memberNumber: appState.memberNumber,
+        donationNumber: "",
+        received: formattedDate,
+        confirmed: "01/01/2000",
+        confirmedby: "N/A",
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
   const renderMenu = () => {
     return (
       <Box m={"10"}>
-        <Box
-          sx={{
-            margin: "1%",
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            justifyContent: "space-between",
-            alignContent: "bottom",
-            width: "inherit",
-          }}
-        >
-          <Box sx={{ flexGrow: 1, margin: "0.1vw" }}>
-            <Header
-              title="Menu"
-              subtitle="View the menu the way your members will see it"
+        {isAdmin && (
+          <Box
+            sx={{
+              margin: "1%",
+              display: "flex",
+              flexDirection: "row",
+              flexWrap: "wrap",
+              justifyContent: "space-between",
+              alignContent: "bottom",
+              width: "inherit",
+            }}
+          >
+            <Box sx={{ flexGrow: 1, margin: "0.1vw" }}>
+              <Header
+                title="Menu"
+                subtitle="View the menu the way your members will see it"
+              />
+            </Box>
+            <Autocomplete
+              filled
+              sx={{ flexGrow: 1, margin: "0.1vw" }}
+              options={selectOptions}
+              onChange={handleSelectChange}
+              getOptionLabel={(option) => option.label}
+              renderInput={(params) => (
+                <TextField {...params} label="Menu Manager" variant="filled" />
+              )}
             />
           </Box>
-          <Autocomplete
-            filled
-            sx={{ flexGrow: 1, margin: "0.1vw" }}
-            options={selectOptions}
-            onChange={handleSelectChange}
-            getOptionLabel={(option) => option.label}
-            renderInput={(params) => (
-              <TextField {...params} label="Menu Manager" variant="filled" />
-            )}
-          />
-        </Box>
+        )}
+
         <Box
           sx={{
             display: "flex",
@@ -229,7 +418,7 @@ const Menu = () => {
               <Button
                 variant="filled"
                 onClick={() => handleOpenModal(stock)}
-                startIcon={<SaveIcon />}
+                startIcon={<TravelExplore />}
                 sx={{
                   backgroundColor: colors.itemColor,
                   color: colors.typographyColor,
@@ -245,6 +434,11 @@ const Menu = () => {
       </Box>
     );
   };
+
+  const options = ["EFT", "Ewallet", "Cash"].map((item) => ({
+    value: item,
+    label: item,
+  }));
 
   return (
     <React.Fragment>
@@ -270,9 +464,6 @@ const Menu = () => {
               p: 4,
             }}
           >
-            <Typography variant="h6" align="center" gutterBottom>
-              Add New Item
-            </Typography>
             <form onSubmit={handleSubmit}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
@@ -283,6 +474,7 @@ const Menu = () => {
                     name="name"
                     value={currentItem.name}
                     onChange={handleInputChange}
+                    disabled
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -296,6 +488,7 @@ const Menu = () => {
                     onChange={handleInputChange}
                   />
                 </Grid>
+
                 <Grid item xs={12} sm={6}>
                   <TextField
                     required
@@ -305,6 +498,22 @@ const Menu = () => {
                     type="number"
                     value={currentItem.value}
                     onChange={handleInputChange}
+                    disabled
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Autocomplete
+                    sx={{ flexGrow: 1, margin: "0.1vw" }}
+                    options={options}
+                    onChange={handleDonationChange}
+                    getOptionLabel={(option) => option.label}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Select Donation Method"
+                        variant="filled"
+                      />
+                    )}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -315,6 +524,8 @@ const Menu = () => {
                     name="requestNumber"
                     value={currentItem.requestNumber}
                     onChange={handleInputChange}
+                    disabled
+                    style={{ display: "none" }}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -325,6 +536,8 @@ const Menu = () => {
                     name="stockNumber"
                     value={currentItem.stockNumber}
                     onChange={handleInputChange}
+                    disabled
+                    style={{ display: "none" }}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -335,6 +548,8 @@ const Menu = () => {
                     name="requestedItemNumber"
                     value={currentItem.requestedItemNumber}
                     onChange={handleInputChange}
+                    disabled
+                    style={{ display: "none" }}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -345,6 +560,8 @@ const Menu = () => {
                     name="actualQuantity"
                     value={currentItem.actualQuantity}
                     onChange={handleInputChange}
+                    disabled
+                    style={{ display: "none" }}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -364,13 +581,7 @@ const Menu = () => {
                     color="primary"
                     onClick={handleAddItem}
                     disabled={
-                      currentItem.name === "" ||
-                      currentItem.quantity === "" ||
-                      currentItem.value === "" ||
-                      currentItem.requestNumber === "" ||
-                      currentItem.stockNumber === "" ||
-                      currentItem.requestedItemNumber === "" ||
-                      currentItem.actualQuantity === ""
+                      currentItem.name === "" || currentItem.quantity === ""
                     }
                   >
                     Add Item
@@ -396,8 +607,8 @@ const Menu = () => {
         >
           <Button
             sx={{
-              backgroundColor: colors.backgroundColor,
-              color: colors.typographyColor,
+              backgroundColor: colors.typographyColor,
+              color: colors.itemColor,
               fontSize: "14px",
               fontWeight: "bold",
               padding: "10px 20px",
@@ -458,17 +669,13 @@ const Menu = () => {
               Total CP: {totalValue.toFixed(2)}
             </Typography>
             <Button
-              sx={{
-                backgroundColor: colors.itemColor,
-                color: colors.typographyColor,
-                fontSize: "14px",
-                fontWeight: "bold",
-                padding: "10px 20px",
-                margin: "1%",
-              }}
-              onClick={() => console.log(requestItems)}
+              onClick={() => postRequestAndItems()}
+              variant="contained"
+              color="primary"
+              startIcon={<Check />}
+              sx={{ mt: "2%" }}
             >
-              Confirm
+              Create Request
             </Button>
           </Box>
         </Box>

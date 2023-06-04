@@ -45,7 +45,9 @@ function RequestItems({ items }) {
     setOldItems(items);
     const fetchStock = async () => {
       try {
-        const response = await axios.get("https://localhost:7287/ActiveStock");
+        const response = await axios.get(
+          process.env.REACT_APP_API_URL + "/ActiveStock"
+        );
         setStock(response.data);
       } catch (error) {
         console.log(error);
@@ -62,51 +64,60 @@ function RequestItems({ items }) {
     oldItems.forEach((oldItem) => {
       const newItem =
         requestItems.find((item) => item.name === oldItem.name) || null;
-      if (newItem.actualQuantity !== oldItem.actualQuantity) {
-        if (newItem.actualQuantity > oldItem.actualQuantity) {
-          //Update Stock Item
-          const oldStock = getStockItemByName(oldItem.name);
-          const newQuantity =
-            parseInt(oldStock.quantity) -
-            (parseInt(newItem.actualQuantity) -
-              parseInt(oldItem.actualQuantity));
-          const data = {
-            name: oldStock.name,
-            description: oldStock.description,
-            quantity: newQuantity.toString(),
-            value: oldStock.value,
-            lastUpdated: formattedDate,
-            active: oldStock.active,
-            stockNumber: oldStock.stockNumber,
-            id: oldStock.id,
-          };
-
-          fetch(process.env.REACT_APP_API_URL + "/Stock", {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-          })
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error("Network response was not ok");
-              }
-              return response.json();
-            })
-            .then((json) => {
-              console.log("API response:", json);
-            })
-            .catch((error) => {
-              console.error("Error updating data:", error);
-            });
-        }
+      let newQuantity = newItem.quantity;
+      const oldStock = getStockItemByName(oldItem.name);
+      if (
+        parseInt(newItem.actualQuantity).toFixed(2) >
+        parseInt(oldItem.quantity).toFixed(2)
+      ) {
+        newQuantity =
+          parseInt(newItem.actualQuantity).toFixed(2) -
+          parseInt(oldItem.quantity).toFixed(2);
       }
+      console.log(
+        parseInt(oldStock.quantity).toFixed(2),
+        newQuantity,
+        parseInt(newItem.actualQuantity).toFixed(2)
+      );
+      const data = {
+        name: oldStock.name,
+        description: oldStock.description,
+        quantity: (
+          parseInt(oldStock.quantity).toFixed(2) -
+          parseInt(newQuantity).toFixed(2)
+        ).toString(),
+        value: oldStock.value,
+        lastUpdated: formattedDate,
+        active: oldStock.active,
+        stockNumber: oldStock.stockNumber,
+        id: oldStock.id,
+      };
+
+      fetch(process.env.REACT_APP_API_URL + "/Stock", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then((json) => {
+          console.log("API response:", json);
+        })
+        .catch((error) => {
+          console.error("Error updating data:", error);
+        });
     });
     //Move Request from unconfirmed -> Confirmed
     const tempItem = oldItems[0] || null;
     fetch(
-      "https://localhost:7287/Requests/Request?requestNumber=" +
+      process.env.REACT_APP_API_URL +
+        "/Requests/Request?requestNumber=" +
         tempItem.requestNumber
     )
       .then((response) => response.json())
@@ -122,7 +133,7 @@ function RequestItems({ items }) {
         };
 
         try {
-          fetch("https://localhost:7287/Requests/Update", {
+          fetch(process.env.REACT_APP_API_URL + "/Requests/Update", {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",

@@ -106,22 +106,23 @@ const Login = () => {
               }}
             >
               <Typography
-                variant="h1"
+                variant="h3"
                 fontWeight="600"
-                color={colors.typographyColor}
+                color={colors.itemColor}
                 m="5px"
               >
                 Potch Huis
               </Typography>
               <Typography
-                variant="h3"
+                variant="h5"
                 fontWeight="600"
-                color={colors.typographyColor}
+                color={colors.itemColor}
                 m="5px"
               >
                 Good times & Lekker People
               </Typography>
             </Box>
+            <br />
             <Formik
               onSubmit={handleFormSubmit}
               initialValues={login}
@@ -194,7 +195,7 @@ const Login = () => {
                         gridColumn: "span 4",
                         margin: "1%",
                         display: "flex",
-                        justifyContent: "space-around",
+                        justifyContent: "space-evenly",
                       }}
                     >
                       <Button

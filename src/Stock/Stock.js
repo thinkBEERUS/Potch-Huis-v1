@@ -27,6 +27,8 @@ import SimpleBackdrop from "../Layout/Backdrop";
 import StockTable from "./StockTable";
 
 function Stock() {
+  const currentDate = new Date();
+  const formattedDate = currentDate.toLocaleDateString("en-GB");
   const [stock, setStock] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -82,13 +84,12 @@ function Stock() {
   };
 
   const handleAddStock = () => {
-    const date = new Date();
     setStockToAdd({
       name: "",
       description: "",
       quantity: "",
       value: "",
-      lastUpdated: date,
+      lastUpdated: formattedDate,
       active: false,
       stockNumber: "#" + stockRows,
     });
@@ -171,13 +172,12 @@ function Stock() {
         stockNumber: stockToAdd.stockNumber,
       })
       .then((response) => {
-        let date = new Date();
         setStockToAdd({
           name: null,
           description: "",
           quantity: "",
           value: "",
-          lastUpdated: date,
+          lastUpdated: formattedDate,
           active: false,
           stockNumber: "",
         });
@@ -198,7 +198,7 @@ function Stock() {
         description: stockToUpdate.description,
         quantity: stockToUpdate.quantity,
         value: stockToUpdate.value,
-        lastUpdated: stockToUpdate.lastUpdated,
+        lastUpdated: formattedDate,
         active: stockToUpdate.active,
         stockNumber: stockToUpdate.stockNumber,
       });

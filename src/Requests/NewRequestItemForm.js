@@ -66,7 +66,7 @@ function NewRequestItemForm(props) {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    fetch("https://localhost:7287/Requests/Items", {
+    fetch(process.env.REACT_APP_API_URL + "/Requests/Items", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -82,7 +82,9 @@ function NewRequestItemForm(props) {
   useEffect(() => {
     const fetchStock = async () => {
       try {
-        const response = await axios.get("https://localhost:7287/ActiveStock");
+        const response = await axios.get(
+          process.env.REACT_APP_API_URL + "/ActiveStock"
+        );
         setStock(response.data);
       } catch (error) {
         console.log(error);
@@ -147,14 +149,17 @@ function NewRequestItemForm(props) {
     };
 
     try {
-      const response = await fetch("https://localhost:7287/Requests/Create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "*/*",
-        },
-        body: JSON.stringify(data),
-      });
+      const response = await fetch(
+        process.env.REACT_APP_API_URL + "/Requests/Create",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "*/*",
+          },
+          body: JSON.stringify(data),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -368,6 +373,7 @@ function NewRequestItemForm(props) {
                   value={currentItem.value}
                   onChange={handleInputChange}
                   disabled
+                  style={{ display: "none" }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -379,6 +385,7 @@ function NewRequestItemForm(props) {
                   value={currentItem.requestNumber}
                   onChange={handleInputChange}
                   disabled
+                  style={{ display: "none" }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -390,6 +397,7 @@ function NewRequestItemForm(props) {
                   value={currentItem.stockNumber}
                   onChange={handleInputChange}
                   disabled
+                  style={{ display: "none" }}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -401,6 +409,7 @@ function NewRequestItemForm(props) {
                   value={currentItem.requestedItemNumber}
                   onChange={handleInputChange}
                   disabled
+                  style={{ display: "none" }}
                 />
               </Grid>
               <Grid item xs={12}>

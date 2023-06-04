@@ -49,7 +49,7 @@ const UnconfirmedTable = (props) => {
 
   function deleteDonation(donationNumber) {
     fetch(
-      `https://localhost:7287/Donations/Delete?donationNumber=${donationNumber}`,
+      `${process.env.REACT_APP_API_URL}/Donations/Delete?donationNumber=${donationNumber}`,
       {
         method: "DELETE",
       }
@@ -93,7 +93,8 @@ const UnconfirmedTable = (props) => {
 
   const handleConfirm = () => {
     const endpoint =
-      "https://localhost:7287/Donations/Donation?donationNumber=" +
+      process.env.REACT_APP_API_URL +
+      "/Donations/Donation?donationNumber=" +
       selectedDonation.donationNumber;
 
     fetch(endpoint)
@@ -117,7 +118,7 @@ const UnconfirmedTable = (props) => {
           id: 0,
         };
         //Update the Donation
-        const endpoint = "https://localhost:7287/Donations/Update";
+        const endpoint = process.env.REACT_APP_API_URL + "/Donations/Update";
 
         fetch(endpoint, {
           method: "PUT",
