@@ -5,7 +5,6 @@ import Register from "./Auth/Register";
 import Members from "./Members/Members";
 import Stock from "./Stock/Stock";
 import Menu from "./Menu/MenuStock";
-import DocumentList from "./Auth/DocumentList";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
@@ -57,7 +56,6 @@ function App() {
                     path="NonDisclosureAgreement"
                     element={<NonDisclosureAgreement />}
                   />
-                  <Route path="DocumentList" element={<DocumentList />} />
                   <Route path="Login" element={<Login />} />
                   <Route path="Password" element={<Password />} />
                 </Routes>

@@ -5,10 +5,12 @@ import {
   TextField,
   Slide,
   Typography,
+  Paper,
+  Grid,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Formik } from "formik";
+import { Field, Formik, Form, ErrorMessage } from "formik";
 import * as yup from "yup";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode, tokens } from "../theme";
@@ -20,6 +22,7 @@ import { useContext } from "react";
 import { AppState } from "../AppState";
 import * as React from "react";
 import SimpleBackdrop from "../Layout/Backdrop";
+import Logo from "../assets/logo.jpg";
 
 const Login = () => {
   const { appState, setAppState } = useContext(AppState);
@@ -30,18 +33,6 @@ const Login = () => {
   const [theme, colorMode] = useMode();
   const colors = tokens(theme.palette.mode);
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [login, setNewLogin] = useState({
-    memberNumber: "",
-    password: "",
-  });
-
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setNewLogin((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
 
   const handleRegister = () => {
     navigate("/Register");
@@ -55,196 +46,210 @@ const Login = () => {
     }, 2000);
   };
 
-  const handleFormSubmit = async () => {
+  const handleFormSubmit = async (values) => {
     setIsLoading(true);
-    const memNum = login.memberNumber;
-    const password = login.password;
-    fetch(
-      process.env.REACT_APP_API_URL +
-        "/Members/Auth?memberNumber=" +
-        memNum +
-        "&password=" +
-        password,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.message === "Member Authenticated") {
-          setAppState({
-            ...appState,
-            memberNumber: data.memberNumber,
-          });
-          setIsLoading(false);
-          navigate("/Dashboard");
-        } else {
-          console.log(data.error);
+
+    try {
+      const response = await fetch(
+        process.env.REACT_APP_API_URL +
+          "/Members/Auth?memberNumber=" +
+          values.memberNumber +
+          "&password=" +
+          values.password,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      })
-      .catch((error) => setError(error));
+      );
+
+      const data = await response.json();
+
+      if (data.message === "Member Authenticated") {
+        setAppState({
+          ...appState,
+          memberNumber: data.memberNumber,
+        });
+        setIsLoading(false);
+        navigate("/Dashboard");
+      } else {
+        console.log(data.error);
+      }
+    } catch (error) {
+      setError(error);
+    }
   };
 
   const renderLogin = () => {
     const checkoutSchema = yup.object().shape({
-      memberNumber: yup.string().required("required"),
-      password: yup.string().required("required"),
+      memberNumber: yup.string().required("Please enter your member number"),
+      password: yup.string().required("Please enter your password"),
     });
+
     return (
       <ColorModeContext.Provider value={colorMode}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <Box m="100px">
-            <Box
-              sx={{
-                gridColumn: "span 4",
-                display: "flex",
-                flexDirection: "column",
-              }}
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="100vh"
+            bgcolor={colors.backgroundColor}
+          >
+            <Paper
+              elevation={3}
+              sx={{ padding: 4, maxWidth: 800, width: "80%" }}
             >
-              <Typography
-                variant="h3"
-                fontWeight="600"
-                color={colors.itemColor}
-                m="5px"
+              <Grid
+                container
+                spacing={2}
+                alignItems="center"
+                justifyContent="center"
               >
-                Potch Huis
-              </Typography>
-              <Typography
-                variant="h5"
-                fontWeight="600"
-                color={colors.itemColor}
-                m="5px"
-              >
-                Good times & Lekker People
-              </Typography>
-            </Box>
-            <br />
-            <Formik
-              onSubmit={handleFormSubmit}
-              initialValues={login}
-              // validationSchema={checkoutSchema}
-            >
-              {({ errors, touched, handleBlur }) => (
-                <form>
-                  <Box
-                    display="grid"
-                    gap="30px"
-                    gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-                    sx={{
-                      "& > div": {
-                        gridColumn: isNonMobile ? undefined : "span 4",
-                      },
-                    }}
-                  >
-                    <TextField
-                      fullWidth
-                      variant="filled"
-                      type="text"
-                      label="Member Number"
-                      onBlur={handleBlur}
-                      onChange={handleInputChange}
-                      name="memberNumber"
-                      error={!!touched.memberNumber && !!errors.memberNumber}
-                      helperText={touched.memberNumber && errors.memberNumber}
-                      sx={{ gridColumn: "span 2" }}
-                    />
-                    <TextField
-                      fullWidth
-                      variant="filled"
-                      type="password"
-                      label="Password"
-                      onBlur={handleBlur}
-                      onChange={handleInputChange}
-                      name="password"
-                      error={!!touched.password && !!errors.password}
-                      helperText={touched.password && errors.password}
-                      sx={{ gridColumn: "span 2" }}
-                    />
-
-                    <Box
-                      sx={{
-                        gridColumn: "span 4",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        direction: "row",
-                      }}
-                    >
-                      <Button
-                        sx={{
-                          gridColumn: "span 1",
-                          backgroundColor: colors.itemColor,
-                          color: colors.typographyColor,
-                          fontSize: "14px",
-                          fontWeight: "bold",
-                          padding: "10px 20px",
-                          marginTop: "3%",
-                        }}
-                        onClick={handleFormSubmit}
-                      >
-                        <LoginIcon sx={{ mr: "10px" }} />
-                        Login
-                      </Button>
-                    </Box>
-                    <Box
-                      sx={{
-                        gridColumn: "span 4",
-                        margin: "1%",
-                        display: "flex",
-                        justifyContent: "space-evenly",
-                      }}
-                    >
-                      <Button
-                        sx={{
-                          gridColumn: "span 1",
-                          backgroundColor: colors.backgroundColor,
-                          color: colors.typographyColor,
-                          fontSize: "14px",
-                          fontWeight: "bold",
-                          padding: "10px 20px",
-                        }}
-                        onClick={handleRegister}
-                      >
-                        <AppRegistrationIcon sx={{ mr: "10px" }} />
-                        Register
-                      </Button>
-                      <Button
-                        sx={{
-                          gridColumn: "span 1",
-                          backgroundColor: colors.backgroundColor,
-                          color: colors.typographyColor,
-                          fontSize: "14px",
-                          fontWeight: "bold",
-                          padding: "10px 20px",
-                        }}
-                        onClick={handleForgotPassword}
-                      >
-                        <LockResetIcon sx={{ mr: "10px" }} />
-                        Forgot Password
-                      </Button>
-                    </Box>
-                    <Box
-                      sx={{ gridColumn: "span 2" }}
+                <Grid item xs={2}>
+                  <Box display="flex" justifyContent="center">
+                    <img
+                      src={Logo}
+                      alt="Logo"
                       style={{
-                        display: "flex",
+                        maxWidth: "100%",
+                        height: "auto",
+                        borderRadius: 10,
                       }}
-                    >
-                      <Box sx={{ width: `calc(200px + 100px)` }}>
-                        <Slide direction="right" in={checked}>
-                          <Alert>
-                            Password reset, please check your email.
-                          </Alert>
-                        </Slide>
-                      </Box>
-                    </Box>
+                    />
                   </Box>
-                </form>
-              )}
-            </Formik>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography
+                    variant="h6"
+                    fontWeight={600}
+                    color={colors.typographyColor}
+                    align="center"
+                  >
+                    Good times & Lekker People
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Formik
+                    onSubmit={handleFormSubmit}
+                    initialValues={{
+                      memberNumber: "",
+                      password: "",
+                    }}
+                    validationSchema={checkoutSchema}
+                  >
+                    {({ errors, touched, handleBlur, handleChange }) => (
+                      <Form>
+                        <Box
+                          display="grid"
+                          mb={4}
+                          sx={{
+                            "& > div": {
+                              gridColumn: { xs: "span 4", md: "span 2" },
+                            },
+                          }}
+                        >
+                          <Field
+                            as={TextField}
+                            fullWidth
+                            variant="filled"
+                            type="text"
+                            label="Member Number"
+                            name="memberNumber"
+                            error={
+                              touched.memberNumber && !!errors.memberNumber
+                            }
+                            helperText={<ErrorMessage name="memberNumber" />}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                          />
+                          <Field
+                            as={TextField}
+                            fullWidth
+                            variant="filled"
+                            type="password"
+                            label="Password"
+                            name="password"
+                            error={touched.password && !!errors.password}
+                            helperText={<ErrorMessage name="password" />}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
+                          />
+                          <br />
+                          <br />
+                          <br />
+                          <Box
+                            display="flex"
+                            justifyContent="center"
+                            alignItems="center"
+                          >
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              type="submit"
+                              style={{
+                                maxWidth: "100%",
+                                height: "auto",
+                                borderRadius: 10,
+                              }}
+                            >
+                              <LoginIcon sx={{ mr: 1 }} />
+                              Login
+                            </Button>
+                          </Box>
+
+                          <Slide direction="right" in={checked}>
+                            <Box mt={2}>
+                              <Alert severity="info">
+                                Password reset, please check your email.
+                              </Alert>
+                            </Box>
+                          </Slide>
+
+                          <Box
+                            display="flex"
+                            flexDirection="column-reverse"
+                            width="100%"
+                            alignItems="center"
+                            mt={2}
+                          >
+                            <Button
+                              variant="contained"
+                              color="secondary"
+                              onClick={handleRegister}
+                              style={{
+                                minWidth: "10vw",
+                                height: "auto",
+                                borderRadius: 10,
+                              }}
+                            >
+                              <AppRegistrationIcon sx={{ mr: 1 }} />
+                              Register
+                            </Button>
+                            <br />
+                            <Button
+                              variant="contained"
+                              color="secondary"
+                              onClick={handleForgotPassword}
+                              style={{
+                                minWidth: "10vw",
+                                height: "auto",
+                                borderRadius: 10,
+                              }}
+                            >
+                              <LockResetIcon sx={{ mr: 1 }} />
+                              Forgot Password
+                            </Button>
+                          </Box>
+                        </Box>
+                      </Form>
+                    )}
+                  </Formik>
+                </Grid>
+              </Grid>
+            </Paper>
           </Box>
         </ThemeProvider>
       </ColorModeContext.Provider>
