@@ -15,13 +15,16 @@ import Donations from "./Donations/Donations";
 import Password from "./Auth/Password";
 import ConfirmedRequests from "./Requests/ConfirmedRequests";
 import RequestedItems from "./Requests/RequestedItems";
-import NonDisclosureAgreement from "./Auth/NonDisclosureAgreement";
 import { AppState } from "./AppState";
 import UnconfirmedRequests from "./Requests/UnconfirmedRequests";
 import NewRequestForm from "./Requests/NewRequestForm";
 import Unconfirmed from "./Donations/Unconfirmed";
 import Reporting from "./Members/Reporting";
 import FAQPage from "./faq";
+import AccountPage from "./Account/account";
+import ContactForm from "./Contact/contact";
+import GalleryPage from "./Gallery/gallery";
+import NewsEventsPage from "./NewsEvents/NewsEvents";
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -52,10 +55,6 @@ function App() {
                 <Routes>
                   <Route index element={<Login />} />
                   <Route path="Register" element={<Register />} />
-                  <Route
-                    path="NonDisclosureAgreement"
-                    element={<NonDisclosureAgreement />}
-                  />
                   <Route path="Login" element={<Login />} />
                   <Route path="Password" element={<Password />} />
                 </Routes>
@@ -87,6 +86,10 @@ function App() {
                   <Route path="RequestedItems" element={<RequestedItems />} />
                   <Route path="Reporting" element={<Reporting />} />
                   <Route path="faq" element={<FAQPage />} />
+                  <Route path="Account" element={<AccountPage />} />
+                  <Route path="Contact" element={<ContactForm />} />
+                  <Route path="Gallery" element={<GalleryPage />} />
+                  <Route path="NewsEvents" element={<NewsEventsPage />} />
                   <Route path="NewRequestForm" element={<NewRequestForm />} />
                   <Route
                     path="ConfirmedRequests"

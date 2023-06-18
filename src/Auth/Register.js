@@ -7,9 +7,11 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode, tokens } from "../theme";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 import RegistrationForm from "./RegistrationForm";
-import NonDisclosureAgreement from "./NonDisclosureAgreement";
 import StandardWaiverIndemnityAgreement from "./StandardWaiverIndemnityAgreement";
 import { useState } from "react";
+import StepOne from "./StepOne";
+import StepTwo from "./StepTwo";
+import StepThree from "./StepThree";
 
 const Register = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -18,7 +20,13 @@ const Register = () => {
   const navigate = useNavigate();
   const url = process.env.REACT_APP_API_URL + "/Members";
 
-  const steps = ["Indemnity", "Non-Disclosure Agreement", "Registration Form"];
+  const steps = [
+    "Indemnity",
+    "Non-Disclosure Agreement",
+    "Step 3",
+    "Step 4",
+    "Step 5",
+  ];
   const [activeStep, setActiveStep] = useState(0);
 
   const handleNext = () => {
@@ -56,7 +64,7 @@ const Register = () => {
           {activeStep === 1 && (
             <Box mt="30px" sx={{ display: "flex", flexDirection: "column" }}>
               <Box mt="30px" display="flex" justifyContent="center">
-                <NonDisclosureAgreement />
+                <StepOne />
               </Box>
               <Box mt="30px" display="flex" justifyContent="space-between">
                 <Button variant="contained" onClick={handleBack}>
@@ -69,8 +77,66 @@ const Register = () => {
             </Box>
           )}
           {activeStep === 2 && (
-            <Box mt="30px" sx={{ display: "flex", justifyContent: "center" }}>
-              <RegistrationForm />
+            <Box
+              mt="30px"
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+              }}
+            >
+              <Box mt="30px" display="flex" justifyContent="center">
+                <StepTwo />
+              </Box>
+              <Box mt="30px" display="flex" justifyContent="space-between">
+                <Button variant="contained" onClick={handleBack}>
+                  Back
+                </Button>
+                <Button variant="contained" onClick={handleNext}>
+                  Next
+                </Button>
+              </Box>
+            </Box>
+          )}
+          {activeStep === 3 && (
+            <Box
+              mt="30px"
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+              }}
+            >
+              <Box mt="30px" display="flex" justifyContent="center">
+                <StepThree />
+              </Box>
+              <Box mt="30px" display="flex" justifyContent="space-between">
+                <Button variant="contained" onClick={handleBack}>
+                  Back
+                </Button>
+                <Button variant="contained" onClick={handleNext}>
+                  Next
+                </Button>
+              </Box>
+            </Box>
+          )}
+          {activeStep === 4 && (
+            <Box
+              mt="30px"
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+              }}
+            >
+              <Box mt="30px" display="flex" justifyContent="center">
+                <RegistrationForm />
+              </Box>
+              <Box mt="30px" display="flex" justifyContent="center">
+                <Button variant="contained" onClick={handleBack}>
+                  Back
+                </Button>
+              </Box>
             </Box>
           )}
         </Box>

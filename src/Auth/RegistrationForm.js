@@ -1,18 +1,29 @@
 import { useState, useContext, useEffect } from "react";
+import { AppState } from "../AppState";
+import { useNavigate } from "react-router-dom";
 import {
-  TextField,
+  Box,
   Button,
-  IconButton,
-  InputAdornment,
+  TextField,
   FormControl,
   InputLabel,
   OutlinedInput,
+  InputAdornment,
+  IconButton,
   FormHelperText,
+  Typography,
+  Paper,
 } from "@mui/material";
-import { AppState } from "../AppState";
-import { useNavigate } from "react-router-dom";
-
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import {
+  Visibility,
+  VisibilityOff,
+  Person,
+  Email,
+  Phone,
+  Home,
+  Lock,
+  CheckCircle,
+} from "@material-ui/icons";
 
 const RegistrationForm = () => {
   const navigate = useNavigate();
@@ -165,126 +176,212 @@ const RegistrationForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <TextField
-        fullWidth
-        label="First Name"
-        name="firstName"
-        defaultValue={formData.firstName}
-        onChange={handleInputChange}
-        error={!!formErrors.firstName}
-        helperText={formErrors.firstName}
-      />
-      <TextField
-        fullWidth
-        label="Last Name"
-        name="lastName"
-        defaultValue={formData.lastName}
-        onChange={handleInputChange}
-        error={!!formErrors.lastName}
-        helperText={formErrors.lastName}
-      />
-      <TextField
-        fullWidth
-        label="Email"
-        name="email"
-        defaultValue={formData.email}
-        onChange={handleInputChange}
-        error={!!formErrors.email}
-        helperText={formErrors.email}
-      />
-      <TextField
-        fullWidth
-        label="Cellphone Number"
-        name="cell"
-        defaultValue={formData.cell}
-        onChange={handleInputChange}
-        error={!!formErrors.cell}
-        helperText={formErrors.cell}
-      />
-      <TextField
-        fullWidth
-        label="Street Address"
-        name="streetAddress"
-        defaultValue={formData.streetAddress}
-        onChange={handleInputChange}
-        error={!!formErrors.streetAddress}
-        helperText={formErrors.streetAddress}
-      />
-      <TextField
-        fullWidth
-        label="Suburb"
-        name="suburb"
-        defaultValue={formData.suburb}
-        onChange={handleInputChange}
-        error={!!formErrors.suburb}
-        helperText={formErrors.suburb}
-      />
-      <TextField
-        fullWidth
-        label="City"
-        name="city"
-        defaultValue={formData.city}
-        onChange={handleInputChange}
-        error={!!formErrors.city}
-        helperText={formErrors.city}
-      />
-      <FormControl fullWidth variant="outlined" error={!!formErrors.password}>
-        <InputLabel htmlFor="password">Password</InputLabel>
-        <OutlinedInput
-          id="password"
-          name="password"
-          type={formData.showPassword ? "text" : "password"}
-          defaultValue={formData.password}
-          onChange={handleInputChange}
-          endAdornment={
-            <InputAdornment position="end">
-              <IconButton
-                aria-label="toggle password visibility"
-                onClick={handleClickShowPassword}
-                onMouseDown={handleMouseDownPassword}
-                edge="end"
-              >
-                {formData.showPassword ? <VisibilityOff /> : <Visibility />}
-              </IconButton>
-            </InputAdornment>
-          }
-          label="Password"
-        />
-        <FormHelperText>{formErrors.password}</FormHelperText>
-      </FormControl>
-      <FormControl
-        fullWidth
-        variant="outlined"
-        error={!!formErrors.confirmPassword}
-      >
-        <InputLabel htmlFor="confirmPassword">Confirm Password</InputLabel>
-        <OutlinedInput
-          id="confirmPassword"
-          name="confirmPassword"
-          type={formData.showPassword ? "text" : "password"}
-          defaultValue={formData.confirmPassword}
-          onChange={handleInputChange}
-          endAdornment={
-            <InputAdornment position="end">
-              <IconButton
-                aria-label="toggle password visibility"
-                onClick={handleClickShowPassword}
-                onMouseDown={handleMouseDownPassword}
-                edge="end"
-              >
-                {formData.showPassword ? <VisibilityOff /> : <Visibility />}
-              </IconButton>
-            </InputAdornment>
-          }
-          label="Confirm Password"
-        />
-        <FormHelperText>{formErrors.confirmPassword}</FormHelperText>
-      </FormControl>
-      <Button variant="contained" color="primary" onClick={handleSubmit}>
-        Submit
-      </Button>
-    </form>
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      minHeight="100vh"
+    >
+      <Paper elevation={3} sx={{ padding: 4, maxWidth: 1000, width: "90%" }}>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            fullWidth
+            label="First Name"
+            name="firstName"
+            defaultValue={formData.firstName}
+            onChange={handleInputChange}
+            error={!!formErrors.firstName}
+            helperText={formErrors.firstName}
+            margin="normal"
+            variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Person />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            fullWidth
+            label="Last Name"
+            name="lastName"
+            defaultValue={formData.lastName}
+            onChange={handleInputChange}
+            error={!!formErrors.lastName}
+            helperText={formErrors.lastName}
+            margin="normal"
+            variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Person />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            fullWidth
+            label="Email"
+            name="email"
+            defaultValue={formData.email}
+            onChange={handleInputChange}
+            error={!!formErrors.email}
+            helperText={formErrors.email}
+            margin="normal"
+            variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Email />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            fullWidth
+            label="Cellphone Number"
+            name="cell"
+            defaultValue={formData.cell}
+            onChange={handleInputChange}
+            error={!!formErrors.cell}
+            helperText={formErrors.cell}
+            margin="normal"
+            variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Phone />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            fullWidth
+            label="Street Address"
+            name="streetAddress"
+            defaultValue={formData.streetAddress}
+            onChange={handleInputChange}
+            error={!!formErrors.streetAddress}
+            helperText={formErrors.streetAddress}
+            margin="normal"
+            variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Home />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            fullWidth
+            label="Suburb"
+            name="suburb"
+            defaultValue={formData.suburb}
+            onChange={handleInputChange}
+            error={!!formErrors.suburb}
+            helperText={formErrors.suburb}
+            margin="normal"
+            variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Home />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            fullWidth
+            label="City"
+            name="city"
+            defaultValue={formData.city}
+            onChange={handleInputChange}
+            error={!!formErrors.city}
+            helperText={formErrors.city}
+            margin="normal"
+            variant="outlined"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Home />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <FormControl
+            fullWidth
+            variant="outlined"
+            error={!!formErrors.password}
+            margin="normal"
+          >
+            <InputLabel htmlFor="password">Password</InputLabel>
+            <OutlinedInput
+              id="password"
+              name="password"
+              type={formData.showPassword ? "text" : "password"}
+              defaultValue={formData.password}
+              onChange={handleInputChange}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {formData.showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+              label="Password"
+            />
+            <FormHelperText>{formErrors.password}</FormHelperText>
+          </FormControl>
+          <FormControl
+            fullWidth
+            variant="outlined"
+            error={!!formErrors.confirmPassword}
+            margin="normal"
+          >
+            <InputLabel htmlFor="confirmPassword">Confirm Password</InputLabel>
+            <OutlinedInput
+              id="confirmPassword"
+              name="confirmPassword"
+              type={formData.showPassword ? "text" : "password"}
+              defaultValue={formData.confirmPassword}
+              onChange={handleInputChange}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {formData.showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+              label="Confirm Password"
+            />
+            <FormHelperText>{formErrors.confirmPassword}</FormHelperText>
+          </FormControl>
+          <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              endIcon={<CheckCircle />}
+              onClick={handleSubmit}
+            >
+              Register
+            </Button>
+          </Box>
+        </form>
+      </Paper>
+    </Box>
   );
 };
+
 export default RegistrationForm;

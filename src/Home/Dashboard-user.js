@@ -79,7 +79,7 @@ const DashboardUser = () => {
           <FlowerIcon fontSize="large" />,
           "Flower Gallery",
           "Explore a collection of beautiful flowers and interesting facts.",
-          "/shop"
+          "/Gallery"
         )}
         {renderCard(
           <ChatRounded fontSize="large" />,
@@ -97,19 +97,19 @@ const DashboardUser = () => {
           <BlogIcon fontSize="large" />,
           "News & Events",
           "Read our latest blog posts and RSVP for club events.",
-          "/shop"
+          "/NewsEvents"
         )}
         {renderCard(
           <Person fontSize="large" />,
           "Account",
           "Manage your account settings.",
-          "/shop"
+          "/Account"
         )}
         {renderCard(
           <Mail fontSize="large" />,
           "Contact",
           "Get in touch with our customer support.",
-          "/shop"
+          "/Contact"
         )}
         {renderCard(
           <LogoutOutlined fontSize="large" />,
